@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
+/*
+ * Mõ Music House — fixed dark theme (not adaptive to system preference,
+ * per the brief: "Theme: Dark - Black and White"). Accent #F7D101 used
+ * sparingly (CTAs, hover/active states), never as a base color.
+ *
+ * Font licensing note: ABC Arizona Sans / Sans Condensed / Flare files
+ * in /public/fonts are TRIAL versions, dev/preview only. Do not ship to
+ * production without confirming a real license. See
+ * automation-os/.claude/skills/momusic-content/modes/website-copy.md.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #f7d101;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
+  --font-display-h1: var(--font-bt-danta);
+  --font-display-h2h3: var(--font-arizona-flare);
+  --font-body: var(--font-arizona-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  /* Real scroll-snap history, four attempts, reverted to this one:
+     (1) snap-mandatory on a non-scrolling wrapper div — no effect.
+     (2) `mandatory` on html directly — trapped scroll with only two
+     sparse snap points near the top, rest of the page became
+     unreachable. (3)/(4) a local nested scroll container
+     (SnapScrollSection.tsx, since removed), applying `overflow-y:
+     scroll` + `mandatory` either immediately or delayed until after
+     mount — both collapsed the container's real scrollable content to
+     a fraction of its expected height (confirmed via actual scrollTop
+     clamping, not just a stale measurement, so a real bug), root cause
+     not resolved after real effort, reverted rather than keep guessing
+     on a live page. `proximity` here is the known-safe version: real,
+     tested, doesn't trap scroll, known tradeoff is it's a soft
+     suggestion that doesn't reliably fire on every scroll gesture. A
+     real guaranteed-mandatory fix most likely needs snap points
+     distributed across the *entire* page rather than a nested
+     container — a fundamentally different technique, worth its own
+     dedicated attempt, not a quick follow-up. */
+  scroll-snap-type: y proximity;
+}
+
+.snap-section {
+  scroll-snap-align: start;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), Arial, Helvetica, sans-serif;
+}
+
+/* Text-selection highlight, sitewide: browser default is a generic
+   blue-gray box (caught on the Help You Prompt heading), swapped for
+   the same accent-fill/black-text treatment as the Prompt Builder's
+   word cards, so selecting text reads as on-brand, not default. */
+::selection {
+  background: var(--accent);
+  color: #000000;
+}
+
+/* CursorField's sitewide "vibration" layer, see components/CursorField.tsx */
+@keyframes cursor-field-pulse {
+  0%, 100% { opacity: 0.06; scale: 1; }
+  50% { opacity: 0.11; scale: 1.15; }
+}
+
+@keyframes cursor-field-ring {
+  0% { width: 16px; height: 16px; opacity: 0.9; border-width: 2px; }
+  100% { width: 320px; height: 320px; opacity: 0; border-width: 0.5px; }
+}
+
+/* HalftonePortrait's idle "alive" shimmer on the default (non-hover) image */
+@keyframes portrait-idle-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.06); }
+}
+
+/* MixerTeaser's EQBar glow, see components/homepage/MixerTeaser.tsx */
+@keyframes eq-bar-glow-pulse {
+  0%, 100% { box-shadow: 0 0 10px 1px rgba(247, 209, 1, 0.55); }
+  50% { box-shadow: 0 0 16px 3px rgba(247, 209, 1, 0.85); }
 }
