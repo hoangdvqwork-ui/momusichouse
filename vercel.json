@@ -1,4 +1,5 @@
 {
+  "framework": "nextjs",
   "build": {
     "env": {
       "NEXT_PUBLIC_SANITY_PROJECT_ID": "194vsei4",
