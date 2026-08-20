@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useParallax } from "@/lib/useParallax";
 import { urlFor } from "@/sanity/lib/image";
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import type { SanityImageSource } from "@sanity/image-url";
 
 // Alternating strength by column position so a row of three doesn't
 // drift as one flat block, part of the sitewide parallax pass.

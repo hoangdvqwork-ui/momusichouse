@@ -1,0 +1,6 @@
+{
+  "env": {
+    "NEXT_PUBLIC_SANITY_PROJECT_ID": "194vsei4",
+    "NEXT_PUBLIC_SANITY_DATASET": "production"
+  }
+}

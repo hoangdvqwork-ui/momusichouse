@@ -2,7 +2,7 @@ import Footer from "@/components/Footer";
 import ProjectCard from "@/components/ProjectCard";
 import { client } from "@/sanity/lib/client";
 import { allProjectsQuery } from "@/sanity/lib/queries";
-import type { SanityImageSource } from "@sanity/image-url/lib/types/types";
+import type { SanityImageSource } from "@sanity/image-url";
 
 export const metadata = {
   title: "Projects | Mõ Music House",
