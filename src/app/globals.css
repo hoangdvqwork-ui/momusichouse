@@ -69,39 +69,20 @@ body {
 }
 
 /* CursorField's sitewide "vibration" layer, see components/CursorField.tsx.
-   Swapped from a solid glow to a frosted-glass lens (2026-08-21): the
-   cursor now distorts/frosts whatever's beneath it via backdrop-filter
-   (backdrop-blur-md/-sm Tailwind classes on the elements themselves —
-   NOT animated here, see component comment for why), tinted faintly
-   with the accent color rather than emitting its own light. The lens
-   breathes and the ring expands by animating tint opacity/size, which
-   do interpolate correctly. */
-@keyframes cursor-field-glass-pulse {
-  0%, 100% {
-    background-color: rgba(247, 209, 1, 0.06);
-    scale: 1;
-  }
-  50% {
-    background-color: rgba(247, 209, 1, 0.1);
-    scale: 1.08;
-  }
+   A frosted-glass (backdrop-blur) variant was tried 2026-08-21 and
+   reverted same day — the blur itself only worked after a real fix
+   (Chrome silently drops backdrop-filter when it's animated purely via
+   @keyframes with no static base), but the result still didn't read as
+   pretty. Back to the solid radial glow, intensity bumped up a bit past
+   the original (0.06/0.11 opacity, 1.15 peak scale) on request. */
+@keyframes cursor-field-pulse {
+  0%, 100% { opacity: 0.09; scale: 1; }
+  50% { opacity: 0.17; scale: 1.2; }
 }
 
-@keyframes cursor-field-glass-ring {
-  0% {
-    width: 16px;
-    height: 16px;
-    background-color: rgba(247, 209, 1, 0.18);
-    border-width: 1.5px;
-    opacity: 0.9;
-  }
-  100% {
-    width: 280px;
-    height: 280px;
-    background-color: rgba(247, 209, 1, 0.02);
-    border-width: 0.5px;
-    opacity: 0;
-  }
+@keyframes cursor-field-ring {
+  0% { width: 16px; height: 16px; opacity: 0.9; border-width: 2px; }
+  100% { width: 320px; height: 320px; opacity: 0; border-width: 0.5px; }
 }
 
 /* HalftonePortrait's idle "alive" shimmer on the default (non-hover) image */

@@ -7,13 +7,15 @@ let ringId = 0;
 
 /**
  * Sitewide "vibration" layer (suggestion set from the hero tuning pass,
- * extended everywhere on request 2026-08-20; swapped from a solid glow
- * to a frosted-glass lens on request 2026-08-21): a tinted backdrop-blur
- * circle follows the cursor, distorting whatever's beneath it, pulsing
- * on the shared beat clock — and every click sends out an expanding
- * glass ring, a literal sound-ping. Fixed overlay, mounted once in
- * (site)/layout.tsx so it's outside the Studio route entirely.
+ * extended everywhere on request 2026-08-20): a soft accent glow follows
+ * the cursor, pulsing on the shared beat clock, and every click sends
+ * out an expanding ring, a literal sound-ping. Fixed overlay, mounted
+ * once in (site)/layout.tsx so it's outside the Studio route entirely.
  * `pointer-events: none` throughout, never intercepts real clicks.
+ *
+ * A frosted-glass (backdrop-blur) variant was tried 2026-08-21 and
+ * reverted same day — didn't read as pretty in practice. Back to the
+ * solid glow, with the intensity bumped up a notch (see globals.css).
  */
 export default function CursorField() {
   const glowRef = useRef<HTMLDivElement>(null);
@@ -46,22 +48,18 @@ export default function CursorField() {
     <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
       <div
         ref={glowRef}
-        className="absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent/20 backdrop-blur-md"
+        className="absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.09]"
         style={{
-          // backdrop-filter itself stays a static base value — Chrome
-          // won't reliably interpolate none -> blur() inside a
-          // @keyframes animation (confirmed via computed style: the
-          // background-color keyframe applied, backdrop-filter silently
-          // stayed "none"), so only the interpolable properties
-          // (background-color, scale) are animated.
-          animation: `cursor-field-glass-pulse ${beatDurationMs(4)}ms ease-in-out infinite`,
+          background:
+            "radial-gradient(circle, rgba(247,209,1,1) 0%, rgba(247,209,1,0) 70%)",
+          animation: `cursor-field-pulse ${beatDurationMs(4)}ms ease-in-out infinite`,
         }}
       />
       {rings.map((ring) => (
         <span
           key={ring.id}
-          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent backdrop-blur-sm"
-          style={{ left: ring.x, top: ring.y, animation: "cursor-field-glass-ring 1s ease-out forwards" }}
+          className="absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent"
+          style={{ left: ring.x, top: ring.y, animation: "cursor-field-ring 1s ease-out forwards" }}
         />
       ))}
     </div>
