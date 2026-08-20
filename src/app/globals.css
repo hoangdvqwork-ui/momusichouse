@@ -68,15 +68,46 @@ body {
   color: #000000;
 }
 
-/* CursorField's sitewide "vibration" layer, see components/CursorField.tsx */
-@keyframes cursor-field-pulse {
-  0%, 100% { opacity: 0.06; scale: 1; }
-  50% { opacity: 0.11; scale: 1.15; }
+/* CursorField's sitewide "vibration" layer, see components/CursorField.tsx.
+   Swapped from a solid glow to a frosted-glass lens (2026-08-21): the
+   cursor now distorts/frosts whatever's beneath it via backdrop-filter,
+   tinted faintly with the accent color rather than emitting its own
+   light. Both the ambient lens and the click ring breathe/expand by
+   animating blur + tint opacity together, not just scale/opacity. */
+@keyframes cursor-field-glass-pulse {
+  0%, 100% {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background-color: rgba(247, 209, 1, 0.06);
+    scale: 1;
+  }
+  50% {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-color: rgba(247, 209, 1, 0.1);
+    scale: 1.08;
+  }
 }
 
-@keyframes cursor-field-ring {
-  0% { width: 16px; height: 16px; opacity: 0.9; border-width: 2px; }
-  100% { width: 320px; height: 320px; opacity: 0; border-width: 0.5px; }
+@keyframes cursor-field-glass-ring {
+  0% {
+    width: 16px;
+    height: 16px;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    background-color: rgba(247, 209, 1, 0.18);
+    border-width: 1.5px;
+    opacity: 0.9;
+  }
+  100% {
+    width: 280px;
+    height: 280px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-color: rgba(247, 209, 1, 0.02);
+    border-width: 0.5px;
+    opacity: 0;
+  }
 }
 
 /* HalftonePortrait's idle "alive" shimmer on the default (non-hover) image */
