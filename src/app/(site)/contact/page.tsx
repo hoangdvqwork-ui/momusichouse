@@ -3,7 +3,7 @@ import ContactForm from "@/components/ContactForm";
 
 export const metadata = {
   title: "Contact | Mõ Music House",
-  description: "hello@momusichouse.com · 0338 114 494",
+  description: "hello@momusichouse.com · +84 338 114 494",
 };
 
 export default function ContactPage() {
@@ -21,8 +21,8 @@ export default function ContactPage() {
           <a href="mailto:hello@momusichouse.com" className="hover:text-accent transition-colors w-fit">
             hello@momusichouse.com
           </a>
-          <a href="tel:0338114494" className="hover:text-accent transition-colors w-fit">
-            0338 114 494 (Mr. Hoàng)
+          <a href="tel:+84338114494" className="hover:text-accent transition-colors w-fit">
+            +84 338 114 494 (Mr. Hoàng)
           </a>
         </div>
 

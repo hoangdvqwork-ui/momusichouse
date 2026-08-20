@@ -5,8 +5,13 @@ import About from "@/components/homepage/About";
 import TalentsSection from "@/components/homepage/TalentsSection";
 import MixerTeaser from "@/components/homepage/MixerTeaser";
 import Footer from "@/components/Footer";
+import { client } from "@/sanity/lib/client";
+import { allProjectsQuery } from "@/sanity/lib/queries";
 
-export default function Home() {
+// Published only, deliberate — see src/sanity/lib/queries.ts.
+export default async function Home() {
+  const projects = await client.fetch(allProjectsQuery, {}, { cache: "no-store" });
+
   return (
     <>
       {/* Sections 1-2: snap-scroll clears the hero on the way into the
@@ -23,7 +28,7 @@ export default function Home() {
         <DotGridHero />
       </div>
       <div className="snap-section">
-        <ProjectSlideshow />
+        <ProjectSlideshow projects={projects} />
       </div>
       <ShowreelSection />
       <About />

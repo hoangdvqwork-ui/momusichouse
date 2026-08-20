@@ -27,7 +27,7 @@ function Card({
     <button
       type="button"
       onClick={onNext}
-      className="inline-flex items-center justify-center rounded-md bg-accent px-3 py-1 mx-1 text-black hover:brightness-95 transition-[filter] align-baseline"
+      className="inline-flex items-center justify-center rounded-md border border-accent bg-transparent px-3 py-1 mx-1 text-accent hover:bg-accent/10 transition-colors align-baseline"
     >
       {options[value]}
     </button>

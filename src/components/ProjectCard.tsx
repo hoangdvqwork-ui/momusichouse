@@ -38,7 +38,7 @@ export default function ProjectCard({
             alt={name}
             fill
             sizes="(min-width: 768px) 33vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover grayscale transition-transform duration-500 group-hover:scale-105"
           />
         ) : null}
         <div
