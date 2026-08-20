@@ -70,20 +70,18 @@ body {
 
 /* CursorField's sitewide "vibration" layer, see components/CursorField.tsx.
    Swapped from a solid glow to a frosted-glass lens (2026-08-21): the
-   cursor now distorts/frosts whatever's beneath it via backdrop-filter,
-   tinted faintly with the accent color rather than emitting its own
-   light. Both the ambient lens and the click ring breathe/expand by
-   animating blur + tint opacity together, not just scale/opacity. */
+   cursor now distorts/frosts whatever's beneath it via backdrop-filter
+   (backdrop-blur-md/-sm Tailwind classes on the elements themselves —
+   NOT animated here, see component comment for why), tinted faintly
+   with the accent color rather than emitting its own light. The lens
+   breathes and the ring expands by animating tint opacity/size, which
+   do interpolate correctly. */
 @keyframes cursor-field-glass-pulse {
   0%, 100% {
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
     background-color: rgba(247, 209, 1, 0.06);
     scale: 1;
   }
   50% {
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     background-color: rgba(247, 209, 1, 0.1);
     scale: 1.08;
   }
@@ -93,8 +91,6 @@ body {
   0% {
     width: 16px;
     height: 16px;
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
     background-color: rgba(247, 209, 1, 0.18);
     border-width: 1.5px;
     opacity: 0.9;
@@ -102,8 +98,6 @@ body {
   100% {
     width: 280px;
     height: 280px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     background-color: rgba(247, 209, 1, 0.02);
     border-width: 0.5px;
     opacity: 0;

@@ -46,15 +46,21 @@ export default function CursorField() {
     <div className="pointer-events-none fixed inset-0 z-[200] overflow-hidden">
       <div
         ref={glowRef}
-        className="absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent/20"
+        className="absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent/20 backdrop-blur-md"
         style={{
+          // backdrop-filter itself stays a static base value — Chrome
+          // won't reliably interpolate none -> blur() inside a
+          // @keyframes animation (confirmed via computed style: the
+          // background-color keyframe applied, backdrop-filter silently
+          // stayed "none"), so only the interpolable properties
+          // (background-color, scale) are animated.
           animation: `cursor-field-glass-pulse ${beatDurationMs(4)}ms ease-in-out infinite`,
         }}
       />
       {rings.map((ring) => (
         <span
           key={ring.id}
-          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent"
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-accent backdrop-blur-sm"
           style={{ left: ring.x, top: ring.y, animation: "cursor-field-glass-ring 1s ease-out forwards" }}
         />
       ))}
