@@ -18,15 +18,17 @@ type ProjectListItem = {
   coverImage?: SanityImageSource | null;
 };
 
-// Fixed display order, matches ProjectSlideshow.tsx's homepage highlight
-// strip and the category list in the Sanity schema itself — not the
-// query's alphabetical sort. A category with nothing published yet is
-// skipped rather than shown as an empty heading.
+// Fixed display order, not the query's alphabetical sort. A category
+// with nothing published yet is skipped rather than shown as an empty
+// heading. Commercial & TVC Scoring pushed to the bottom on request
+// 2026-08-21 -- diverges from ProjectSlideshow.tsx's homepage order,
+// deliberately: this page's order is about how the grid should read
+// top-to-bottom, not the schema's category list order.
 const CATEGORY_ORDER = [
-  "Commercial & TVC Scoring",
   "Brand Sound & Sonic Identity",
   "Talent Booking & Artist Collaboration",
   "Live Event & Music Direction",
+  "Commercial & TVC Scoring",
 ];
 
 // Published only, deliberate — see src/sanity/lib/queries.ts.
