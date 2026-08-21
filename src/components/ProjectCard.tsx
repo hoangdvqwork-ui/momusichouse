@@ -6,9 +6,14 @@ import { useParallax } from "@/lib/useParallax";
 import { urlFor } from "@/sanity/lib/image";
 import type { SanityImageSource } from "@sanity/image-url";
 
-// Alternating strength by column position so a row of three doesn't
-// drift as one flat block, part of the sitewide parallax pass.
-const STRENGTHS = [14, -10, 18];
+// Different strength by column position so a row of three doesn't
+// drift as one flat block, part of the sitewide parallax pass. Same
+// sign across all three (2026-08-21 fix) -- the middle column's -10
+// used to be the opposite sign from the outer two, so it visibly
+// drifted the other way instead of just moving slower, reading as a
+// misaligned grid rather than a staggered one, worse the further down
+// the page you scrolled.
+const STRENGTHS = [14, 9, 18];
 
 export default function ProjectCard({
   index,
