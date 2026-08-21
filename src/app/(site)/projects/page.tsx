@@ -18,9 +18,25 @@ type ProjectListItem = {
   coverImage?: SanityImageSource | null;
 };
 
+// Fixed display order, matches ProjectSlideshow.tsx's homepage highlight
+// strip and the category list in the Sanity schema itself — not the
+// query's alphabetical sort. A category with nothing published yet is
+// skipped rather than shown as an empty heading.
+const CATEGORY_ORDER = [
+  "Commercial & TVC Scoring",
+  "Brand Sound & Sonic Identity",
+  "Talent Booking & Artist Collaboration",
+  "Live Event & Music Direction",
+];
+
 // Published only, deliberate — see src/sanity/lib/queries.ts.
 export default async function ProjectsPage() {
   const projects: ProjectListItem[] = await client.fetch(allProjectsQuery, {}, { cache: "no-store" });
+
+  const groups = CATEGORY_ORDER.map((category) => ({
+    category,
+    projects: projects.filter((p) => p.category === category),
+  })).filter((g) => g.projects.length > 0);
 
   return (
     <>
@@ -31,9 +47,18 @@ export default async function ProjectsPage() {
         {projects.length === 0 ? (
           <p className="text-white/50">Nothing published yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/10">
-            {projects.map((project, i) => (
-              <ProjectCard key={project.slug} index={i} {...project} />
+          <div className="flex flex-col gap-16">
+            {groups.map(({ category, projects: categoryProjects }) => (
+              <div key={category}>
+                <h2 className="text-white/50 text-sm uppercase tracking-wide mb-6">
+                  {category}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/10">
+                  {categoryProjects.map((project) => (
+                    <ProjectCard key={project.slug} {...project} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
