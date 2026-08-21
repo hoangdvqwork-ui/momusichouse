@@ -39,10 +39,14 @@ function Panel({ project, strength }: { project: ProjectListItem; strength: numb
         className="group relative block h-full w-full overflow-hidden bg-white/5"
       >
         {project.coverImage ? (
+          // unoptimized: see ProjectCard.tsx's comment -- Sanity's CDN
+          // already resizes/crops via urlFor(), Next's own optimization
+          // pipeline is both redundant and quota-limited on Vercel.
           <Image
             src={urlFor(project.coverImage).width(800).height(960).fit("crop").url()}
             alt={project.name}
             fill
+            unoptimized
             sizes="(min-width: 768px) 25vw, 100vw"
             className="object-cover grayscale transition-transform duration-500 group-hover:scale-105"
           />

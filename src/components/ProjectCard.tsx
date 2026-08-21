@@ -33,10 +33,17 @@ export default function ProjectCard({
         className="group relative block aspect-[4/3] overflow-hidden bg-black"
       >
         {coverImage ? (
+          // unoptimized: Sanity's CDN already resizes/crops via the urlFor()
+          // params above, so Next's own re-optimization is redundant and
+          // burns Vercel's separate (quota-limited) image-optimization
+          // pipeline. New cover photos started 402ing once the Hobby plan's
+          // free quota was used up (2026-08-21) -- bypassing it here removes
+          // that dependency entirely.
           <Image
             src={urlFor(coverImage).width(800).height(600).fit("crop").url()}
             alt={name}
             fill
+            unoptimized
             sizes="(min-width: 768px) 33vw, 100vw"
             className="object-cover grayscale transition-transform duration-500 group-hover:scale-105"
           />
