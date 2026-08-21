@@ -1,28 +1,99 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { beatDurationMs } from "@/lib/beat";
 
-const BANDS = ["Low", "Mid-Low", "Mid", "High"];
+type Band = {
+  label: string;
+  type: BiquadFilterType;
+  frequency: number;
+  q?: number;
+};
+
+// Center frequencies/types per the spec in momusic-content's
+// website-copy.md build plan (drafted before the track existed).
+const BANDS: Band[] = [
+  { label: "Low", type: "lowshelf", frequency: 150 },
+  { label: "Mid-Low", type: "peaking", frequency: 600, q: 1 },
+  { label: "Mid", type: "peaking", frequency: 2000, q: 1 },
+  { label: "High", type: "highshelf", frequency: 6000 },
+];
+
 const GLOW_PULSE = `eq-bar-glow-pulse ${beatDurationMs(4)}ms ease-in-out infinite`;
 
+// level 0..1 (0.5 = flat) -> gain in dB, +-12dB range per spec.
+function levelToGain(level: number) {
+  return (level - 0.5) * 24;
+}
+
 /**
- * Thin glowing level bar, standing in for the real gain sliders until
- * Web Audio is wired up. Not a native <input type="range"> reskinned —
- * removing the thumb and adding a gradient fill reliably needs
- * vendor-prefixed pseudo-elements (::-webkit-slider-thumb,
- * ::-moz-range-track, etc.) that render inconsistently across browsers.
- * Since this is disabled/non-interactive anyway (real wiring blocked on
- * the track), a plain div-based bar gives full, consistent control over
- * the look instead. Filled to 50% by default, representing the flat/0dB
- * center of a -12..+12 gain range.
+ * Draggable gain bar for one EQ band. Not a native <input type="range">
+ * reskinned — removing the thumb and adding a gradient fill reliably
+ * needs vendor-prefixed pseudo-elements that render inconsistently
+ * across browsers, and this needs pointer-drag-anywhere-on-the-track
+ * behavior anyway (native range only drags the thumb). Plain
+ * pointer-event handling on a div gives full control.
  */
-function EQBar({ band, level = 0.5 }: { band: string; level?: number }) {
+function EQBar({
+  band,
+  level,
+  onChange,
+}: {
+  band: Band;
+  level: number;
+  onChange: (level: number) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const levelFromPointer = useCallback((clientY: number) => {
+    const track = trackRef.current;
+    if (!track) return null;
+    const rect = track.getBoundingClientRect();
+    const fraction = 1 - (clientY - rect.top) / rect.height; // bottom = 0, top = 1
+    return Math.min(1, Math.max(0, fraction));
+  }, []);
+
+  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const next = levelFromPointer(e.clientY);
+    if (next !== null) onChange(next);
+  }
+
+  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.buttons !== 1) return;
+    const next = levelFromPointer(e.clientY);
+    if (next !== null) onChange(next);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      onChange(Math.min(1, level + 0.05));
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      onChange(Math.max(0, level - 0.05));
+    }
+  }
+
+  const gain = levelToGain(level);
+
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative h-40 w-[3px] rounded-full bg-white/10">
+      <div
+        ref={trackRef}
+        role="slider"
+        tabIndex={0}
+        aria-label={`${band.label} gain`}
+        aria-valuemin={-12}
+        aria-valuemax={12}
+        aria-valuenow={Math.round(gain)}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onKeyDown={handleKeyDown}
+        className="relative h-40 w-[3px] rounded-full bg-white/10 cursor-pointer touch-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+      >
         <div
-          className="absolute bottom-0 left-0 w-full rounded-full"
+          className="absolute bottom-0 left-0 w-full rounded-full pointer-events-none"
           style={{
             height: `${level * 100}%`,
             background:
@@ -32,41 +103,126 @@ function EQBar({ band, level = 0.5 }: { band: string; level?: number }) {
           }}
         />
       </div>
-      <span className="text-white/50 text-xs uppercase tracking-wide">{band}</span>
+      <span className="text-white/50 text-xs uppercase tracking-wide">{band.label}</span>
+      <span className="text-white/30 text-[10px] tabular-nums">
+        {gain > 0 ? "+" : ""}
+        {gain.toFixed(0)}dB
+      </span>
     </div>
   );
 }
 
 /**
- * Section 5, "The Mixer (hidden)". Rebuilt 2026-08-21, dropping the
- * fixed-overlay/transform "full-bleed takeover" entirely — it was
- * fighting `position: fixed` measurement issues throughout this
- * session and reported as laggy in real use. This version is much
- * simpler: the Mixer is normal in-flow content (no overlay, no
- * `position: fixed`, no locked body scroll), collapsed to zero height
- * by default. Continuing to scroll down once already at the bottom of
- * the page ("the second scroll down") unlocks it, it reveals, and the
- * page just keeps scrolling normally into it like any other section.
- * Scrolling back up past it re-locks it (via IntersectionObserver: once
- * it's been seen and then leaves view, that can only mean scrolling up
- * past it, since it's the last section on the page), so the same
- * unlock gesture is needed again next time.
+ * Section 5, "The Mixer (hidden)". Reveal mechanics (scroll-to-unlock,
+ * relock on scroll-up) unchanged from the 2026-08-21 rebuild, see prior
+ * comment history in git blame. What changed 2026-08-21 (later same
+ * day): the real Mõ-owned track landed (`public/audio/mixer.mp3`), so
+ * the Web Audio wiring specced in momusic-content's website-copy.md
+ * (four BiquadFilterNodes, one per band, drag-to-set gain) is now live
+ * instead of an honest "not live yet" placeholder.
  *
- * Reveal height is a full viewport (`100vh`), not a fixed 640px —
- * scrolling into it should feel like entering a real section, not
- * peeking at a small panel.
- *
- * Real Web Audio wiring (4-band BiquadFilterNode EQ over a background
- * track) is specced in this skill's website-copy.md but still blocked
- * on an original Mõ-owned track that doesn't exist yet (repurposing a
- * client's commissioned piece is a rights problem) — so the reveal
- * mechanics below are real, the mixer itself is an honest "not live
- * yet" panel, not a working player.
+ * Audio graph is built lazily on first Play click, not on mount —
+ * browsers block AudioContext/playback without a user gesture, and
+ * constructing everything inside that same click handler is the
+ * simplest way to satisfy that reliably across browsers (Safari in
+ * particular is strict about this).
  */
 export default function MixerTeaser() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [unlocked, setUnlocked] = useState(false);
   const wasVisible = useRef(false);
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const filterNodesRef = useRef<BiquadFilterNode[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [levels, setLevels] = useState<number[]>(BANDS.map(() => 0.5));
+
+  function setupAudioGraph() {
+    if (audioCtxRef.current || !audioRef.current) return;
+    const ctx = new AudioContext();
+    const source = ctx.createMediaElementSource(audioRef.current);
+    const filters = BANDS.map((band) => {
+      const filter = ctx.createBiquadFilter();
+      filter.type = band.type;
+      filter.frequency.value = band.frequency;
+      if (band.q) filter.Q.value = band.q;
+      filter.gain.value = levelToGain(0.5);
+      return filter;
+    });
+    // Chain: source -> low -> mid-low -> mid -> high -> destination.
+    let node: AudioNode = source;
+    for (const filter of filters) {
+      node.connect(filter);
+      node = filter;
+    }
+    node.connect(ctx.destination);
+    audioCtxRef.current = ctx;
+    filterNodesRef.current = filters;
+  }
+
+  async function togglePlay() {
+    try {
+      setupAudioGraph();
+      const ctx = audioCtxRef.current;
+      const audio = audioRef.current;
+      if (!ctx || !audio) return;
+      if (ctx.state === "suspended") await ctx.resume();
+
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        await audio.play();
+      }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[mixer] togglePlay failed", err);
+    }
+  }
+
+  function handleLevelChange(index: number, level: number) {
+    setLevels((prev) => {
+      const next = [...prev];
+      next[index] = level;
+      return next;
+    });
+    const filter = filterNodesRef.current[index];
+    if (filter) filter.gain.value = levelToGain(level);
+  }
+
+  function handleReset() {
+    setLevels(BANDS.map(() => 0.5));
+    filterNodesRef.current.forEach((filter) => {
+      filter.gain.value = levelToGain(0.5);
+    });
+  }
+
+  // Keep isPlaying in sync with the actual element (covers the pause
+  // that happens when the section re-locks and any browser-driven pause).
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    audio.addEventListener("play", onPlay);
+    audio.addEventListener("pause", onPause);
+    return () => {
+      audio.removeEventListener("play", onPlay);
+      audio.removeEventListener("pause", onPause);
+    };
+  }, []);
+
+  // Pause playback whenever the section re-locks (scrolled back up past it).
+  useEffect(() => {
+    if (!unlocked) audioRef.current?.pause();
+  }, [unlocked]);
+
+  // Tear down the AudioContext on unmount, not just pause the element.
+  useEffect(() => {
+    return () => {
+      audioCtxRef.current?.close();
+    };
+  }, []);
 
   // Unlock on continued scroll-down at the true bottom of the page —
   // but only on a genuinely SEPARATE scroll after the first one settles.
@@ -168,15 +324,40 @@ export default function MixerTeaser() {
         style={{ maxHeight: unlocked ? "100vh" : "0px" }}
       >
         <div className="min-h-screen px-6 md:px-10 py-16 flex flex-col items-center justify-center gap-16">
-          <p className="text-white/70 text-sm max-w-md text-center">
-            The Mixer isn&rsquo;t live yet, it needs an original Mõ-owned
-            track first. This is the interaction, not the sound.
-          </p>
+          {/* eslint-disable-next-line jsx-a11y/media-has-caption -- instrumental track, no dialogue to caption */}
+          <audio ref={audioRef} src="/audio/mixer.mp3" loop preload="none" />
+
+          <div className="flex flex-col items-center gap-3 text-center">
+            <button
+              type="button"
+              onClick={togglePlay}
+              className="rounded-full border border-accent px-8 py-3 text-accent text-sm uppercase tracking-wide hover:bg-accent/10 transition-colors"
+            >
+              {isPlaying ? "Pause" : "Play"}
+            </button>
+            <p className="text-white/50 text-xs max-w-md">
+              Drag each band to shape the mix. This is our sound, in your hands.
+            </p>
+          </div>
+
           <div className="grid grid-cols-4 gap-12">
-            {BANDS.map((band) => (
-              <EQBar key={band} band={band} />
+            {BANDS.map((band, i) => (
+              <EQBar
+                key={band.label}
+                band={band}
+                level={levels[i]}
+                onChange={(level) => handleLevelChange(i, level)}
+              />
             ))}
           </div>
+
+          <button
+            type="button"
+            onClick={handleReset}
+            className="text-white/40 text-xs uppercase tracking-wide hover:text-accent transition-colors"
+          >
+            Reset to flat
+          </button>
         </div>
       </div>
     </section>
