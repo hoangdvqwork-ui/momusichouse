@@ -10,7 +10,7 @@ export default function DotGridHero() {
   return (
     <section className="relative flex h-screen w-full items-center justify-center overflow-hidden px-6">
       <h1 className="pointer-events-none text-center font-[family-name:var(--font-display-h1)] text-[9vw] leading-[0.95] text-white md:text-[5vw]">
-        The Sound of your Idea
+        The Sound of Ideas
       </h1>
     </section>
   );
