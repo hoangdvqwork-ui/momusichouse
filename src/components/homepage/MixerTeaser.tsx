@@ -313,7 +313,7 @@ export default function MixerTeaser() {
   }, [unlocked]);
 
   return (
-    <section className="w-full bg-black">
+    <section className="w-full bg-black/75">
       <div className="w-full flex items-center justify-center py-16 text-white/50 text-xs tracking-[0.3em] uppercase">
         Scroll down and volume up
       </div>

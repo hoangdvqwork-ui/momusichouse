@@ -7,7 +7,7 @@ const TALENTS = [
 
 export default function TalentsSection() {
   return (
-    <section className="w-full bg-black">
+    <section className="w-full bg-black/75">
       <div className="grid grid-cols-1 md:grid-cols-2">
         {TALENTS.map((talent) => (
           <HalftonePortrait key={talent.href} name={talent.name} href={talent.href} src={talent.src} />

@@ -36,7 +36,7 @@ function Panel({ project, strength }: { project: ProjectListItem; strength: numb
     <div ref={ref} className="flex-1 h-[50vh] md:h-[60vh]">
       <Link
         href={`/projects/${project.slug}`}
-        className="group relative block h-full w-full overflow-hidden bg-white/5"
+        className="group relative block h-full w-full overflow-hidden rounded-2xl bg-white/5 md:rounded-none"
       >
         {project.coverImage ? (
           // unoptimized: see ProjectCard.tsx's comment -- Sanity's CDN
@@ -66,7 +66,7 @@ export default function ProjectSlideshow({ projects }: { projects: ProjectListIt
   ).filter((p): p is ProjectListItem => Boolean(p));
 
   return (
-    <section className="min-h-screen w-full bg-black flex flex-col justify-center gap-10 px-6 md:px-10 py-20 overflow-hidden">
+    <section className="min-h-screen w-full bg-black/75 flex flex-col justify-center gap-10 px-6 md:px-10 py-20 overflow-hidden">
       {highlights.length > 0 ? (
         <div className="flex w-full flex-col md:flex-row gap-4 md:gap-6">
           {highlights.map((project, i) => (

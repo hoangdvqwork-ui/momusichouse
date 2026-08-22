@@ -164,7 +164,7 @@ export default function HalftonePortrait({
         const rect = containerRef.current!.getBoundingClientRect();
         mouse.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
       }}
-      className="group relative block h-[70vh] md:h-[80vh] w-full overflow-hidden bg-white/5"
+      className="group relative block h-[70vh] md:h-[80vh] w-full overflow-hidden rounded-2xl bg-white/5 md:rounded-none"
     >
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element -- sampled onto a canvas at hover time, next/image's optimization isn't relevant here

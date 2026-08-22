@@ -1,4 +1,6 @@
 import DotGridHero from "@/components/homepage/DotGridHero";
+import FlowBackground from "@/components/homepage/FlowBackground";
+import ScrollEdgeGlow from "@/components/homepage/ScrollEdgeGlow";
 import ProjectSlideshow from "@/components/homepage/ProjectSlideshow";
 import ShowreelSection from "@/components/homepage/ShowreelSection";
 import About from "@/components/homepage/About";
@@ -14,6 +16,13 @@ export default async function Home() {
 
   return (
     <>
+      {/* FlowBackground first in the tree so it paints behind everything
+          that follows (no explicit z-index needed — same-stacking-level
+          elements paint in DOM order). See that file's comment for the
+          experiment this branch is testing. */}
+      <FlowBackground />
+      <ScrollEdgeGlow />
+
       {/* Sections 1-2: snap-scroll clears the hero on the way into the
           slideshow. `proximity` (globals.css) is the known-safe,
           verified version. A local nested-scroll-container was tried
