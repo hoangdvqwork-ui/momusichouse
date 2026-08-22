@@ -32,13 +32,20 @@ export default async function ProjectDetailPage({
 
   return (
     <>
-      <HeroMedia
-        type={project.heroMediaType}
-        videoUrl={project.heroVideoUrl}
-        fileUrl={project.heroMediaFileUrl}
-      />
+      {/* pt-32: HeroMedia used to render flush at y=0, so the fixed nav
+          floated directly over the video with zero clearance (real bug,
+          caught 2026-08-21 — every other page's content already clears
+          the nav via this page's own pt-32 on the text wrapper below,
+          the video just wasn't inside it). */}
+      <div className="pt-32">
+        <HeroMedia
+          type={project.heroMediaType}
+          videoUrl={project.heroVideoUrl}
+          fileUrl={project.heroMediaFileUrl}
+        />
+      </div>
 
-      <div className="px-6 md:px-10 pt-32 pb-32">
+      <div className="px-6 md:px-10 pb-32">
         <span className="text-white/50 text-xs uppercase tracking-wide">
           {project.category} · {project.year}
         </span>
