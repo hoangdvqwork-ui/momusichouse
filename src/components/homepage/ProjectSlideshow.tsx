@@ -33,10 +33,10 @@ const PARALLAX_STRENGTHS = [18, -14, 22, -18];
 function Panel({ project, strength }: { project: ProjectListItem; strength: number }) {
   const ref = useParallax<HTMLDivElement>(strength);
   return (
-    <div ref={ref} className="flex-1 h-[50vh] md:h-[60vh]">
+    <div ref={ref} className="flex-1 h-screen">
       <Link
         href={`/projects/${project.slug}`}
-        className="group relative block h-full w-full overflow-hidden rounded-2xl bg-white/5 md:rounded-none"
+        className="group relative block h-full w-full overflow-hidden bg-black"
       >
         {project.coverImage ? (
           // unoptimized: see ProjectCard.tsx's comment -- Sanity's CDN
@@ -66,23 +66,30 @@ export default function ProjectSlideshow({ projects }: { projects: ProjectListIt
   ).filter((p): p is ProjectListItem => Boolean(p));
 
   return (
-    <section className="min-h-screen w-full bg-black/75 flex flex-col justify-center gap-10 px-6 md:px-10 py-20 overflow-hidden">
+    <section className="w-full bg-black/75 overflow-hidden">
+      {/* Full-bleed 2026-08-22: no outer padding/gaps, panels run edge-
+          to-edge both directions and touch each other, no rounded
+          corners (full-bleed against the browser's own edge doesn't
+          read right rounded). Title stays centered per panel, unchanged
+          hover-reveal behavior. */}
       {highlights.length > 0 ? (
-        <div className="flex w-full flex-col md:flex-row gap-4 md:gap-6">
+        <div className="flex w-full flex-col md:flex-row">
           {highlights.map((project, i) => (
             <Panel key={project.slug} project={project} strength={PARALLAX_STRENGTHS[i]} />
           ))}
         </div>
       ) : (
-        <p className="text-white/50 text-center">Nothing published yet.</p>
+        <p className="text-white/50 text-center py-20">Nothing published yet.</p>
       )}
 
-      <Link
-        href="/projects"
-        className="mx-auto text-white text-sm underline underline-offset-4 hover:text-accent transition-colors"
-      >
-        See all projects
-      </Link>
+      <div className="flex justify-center py-10">
+        <Link
+          href="/projects"
+          className="text-white text-sm underline underline-offset-4 hover:text-accent transition-colors"
+        >
+          See all projects
+        </Link>
+      </div>
     </section>
   );
 }

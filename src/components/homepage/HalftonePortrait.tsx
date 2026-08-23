@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { beatDurationMs } from "@/lib/beat";
+import { useScrollEdgeBlur } from "@/lib/useScrollEdgeBlur";
 
 const ACCENT = { r: 0xf7, g: 0xd1, b: 0x01 };
 const IDLE_PULSE = `portrait-idle-pulse ${beatDurationMs(8)}ms ease-in-out infinite`;
@@ -25,6 +26,7 @@ export default function HalftonePortrait({
   href: string;
 }) {
   const containerRef = useRef<HTMLAnchorElement>(null);
+  const nameBlurRef = useScrollEdgeBlur<HTMLSpanElement>();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hovering, setHovering] = useState(false);
   const mouse = useRef({ x: -9999, y: -9999 });
@@ -191,7 +193,10 @@ export default function HalftonePortrait({
         className="absolute inset-0 transition-opacity duration-200"
         style={{ opacity: hovering ? 1 : 0 }}
       />
-      <span className="absolute bottom-6 left-6 text-white text-xl font-[family-name:var(--font-display-h2h3)]">
+      <span
+        ref={nameBlurRef}
+        className="absolute bottom-6 left-6 text-white text-xl font-[family-name:var(--font-display-h2h3)]"
+      >
         {name}
       </span>
     </a>

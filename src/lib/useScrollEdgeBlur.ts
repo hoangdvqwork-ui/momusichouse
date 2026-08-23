@@ -30,8 +30,15 @@ import { useEffect, useRef } from "react";
  * trigger on a normal viewport height, giving a small nonzero blur at
  * true rest instead of cleanly zero -- viewport-height-dependent,
  * fixed by making it relative to the element instead).
+ *
+ * TRIGGER raised 380 (was 160) same day, "make it happen sooner" —
+ * the ramp now starts while the element is still comfortably in the
+ * lower/middle of the viewport instead of waiting until it's almost at
+ * the top. Now also applied to every homepage heading-style text (About's
+ * statement, talent names), not just the hero -- exactly the "call the
+ * hook again on a new ref" extension the original build predicted.
  */
-const TRIGGER = 160; // px from viewport top: ramp starts once the element's top crosses below this
+const TRIGGER = 380; // px from viewport top: ramp starts once the element's top crosses below this
 const MAX_BLUR = 18; // px
 const MAX_GLOW = 46; // px text-shadow spread at full intensity
 const ACCENT = "247, 209, 1";

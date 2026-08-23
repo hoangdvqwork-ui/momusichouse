@@ -139,8 +139,28 @@ export default function FlowBackground() {
       mouse.current = { x: -9999, y: -9999 };
     }
 
+    // Fades the canvas itself out once scrolled past the showreel
+    // section, so this "flowy" treatment stays a homepage-opening
+    // device rather than persisting behind the whole page forever.
+    // Plain opacity on the canvas element, computed from the section's
+    // own bounding rect -- separate from the per-dot draw loop above,
+    // no need for this to run every animation frame.
+    const FADE_DISTANCE = 400; // px past the showreel's bottom edge to complete the fade
+    function updateFade() {
+      const showreel = document.getElementById("showreel-section");
+      let fadeOpacity = 1;
+      if (showreel) {
+        const rect = showreel.getBoundingClientRect();
+        if (rect.bottom <= 0) {
+          fadeOpacity = Math.max(0, 1 + rect.bottom / FADE_DISTANCE);
+        }
+      }
+      canvas!.style.opacity = String(fadeOpacity);
+    }
+
     function handleScroll() {
       scrollY.current = window.scrollY;
+      updateFade();
     }
 
     function handleVisibility() {
@@ -153,6 +173,7 @@ export default function FlowBackground() {
     }
 
     resize();
+    updateFade();
     draw();
 
     window.addEventListener("resize", resize);
@@ -174,7 +195,7 @@ export default function FlowBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 h-screen w-screen"
+      className="pointer-events-none fixed inset-0 h-screen w-screen transition-opacity duration-500"
       aria-hidden
     />
   );

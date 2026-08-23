@@ -10,7 +10,9 @@ export default function ShowreelSection() {
   if (!embed) return null;
 
   return (
-    <section className="w-full bg-black/75 px-6 md:px-10 py-24">
+    // id: FlowBackground.tsx queries this to fade the dot-grid canvas
+    // out once scrolled past this section, see that file's comment.
+    <section id="showreel-section" className="w-full bg-black/75 px-6 md:px-10 py-24">
       <div className="mx-auto max-w-5xl">
         <div className="relative w-full aspect-video overflow-hidden rounded-2xl bg-white/5 md:rounded-none">
           <iframe
