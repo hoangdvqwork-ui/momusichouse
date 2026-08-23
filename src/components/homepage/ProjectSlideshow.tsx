@@ -33,7 +33,7 @@ const PARALLAX_STRENGTHS = [18, -14, 22, -18];
 function Panel({ project, strength }: { project: ProjectListItem; strength: number }) {
   const ref = useParallax<HTMLDivElement>(strength);
   return (
-    <div ref={ref} className="flex-1 h-screen">
+    <div ref={ref} className="h-screen w-full">
       <Link
         href={`/projects/${project.slug}`}
         className="group relative block h-full w-full overflow-hidden bg-black"
@@ -43,16 +43,16 @@ function Panel({ project, strength }: { project: ProjectListItem; strength: numb
           // already resizes/crops via urlFor(), Next's own optimization
           // pipeline is both redundant and quota-limited on Vercel.
           <Image
-            src={urlFor(project.coverImage).width(800).height(960).fit("crop").url()}
+            src={urlFor(project.coverImage).width(1600).height(1600).fit("crop").url()}
             alt={project.name}
             fill
             unoptimized
-            sizes="(min-width: 768px) 25vw, 100vw"
+            sizes="100vw"
             className="object-cover grayscale transition-transform duration-500 group-hover:scale-105"
           />
         ) : null}
         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors duration-300" />
-        <span className="absolute inset-0 flex items-center justify-center text-center px-4 text-white text-lg md:text-xl font-[family-name:var(--font-display-h2h3)] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <span className="absolute inset-0 flex items-center justify-center text-center px-4 text-white text-3xl md:text-5xl font-[family-name:var(--font-display-h1)]">
           {project.name}
         </span>
       </Link>
@@ -67,13 +67,15 @@ export default function ProjectSlideshow({ projects }: { projects: ProjectListIt
 
   return (
     <section className="w-full bg-black/75 overflow-hidden">
-      {/* Full-bleed 2026-08-22: no outer padding/gaps, panels run edge-
-          to-edge both directions and touch each other, no rounded
-          corners (full-bleed against the browser's own edge doesn't
-          read right rounded). Title stays centered per panel, unchanged
-          hover-reveal behavior. */}
+      {/* Full-bleed 2026-08-23, corrected: "full-bleed" means each SLIDE
+          fills the whole viewport on its own (one project, one screen,
+          stacked in normal scroll flow) -- not 4 panels sharing one
+          screen side-by-side, which was the first (wrong) read of this.
+          Title is always visible now, centered per panel -- a hover-only
+          reveal doesn't work once each slide is the only thing on
+          screen (and doesn't work at all on touch). */}
       {highlights.length > 0 ? (
-        <div className="flex w-full flex-col md:flex-row">
+        <div className="flex w-full flex-col">
           {highlights.map((project, i) => (
             <Panel key={project.slug} project={project} strength={PARALLAX_STRENGTHS[i]} />
           ))}

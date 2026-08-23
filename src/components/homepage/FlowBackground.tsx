@@ -128,6 +128,7 @@ export default function FlowBackground() {
         }
       }
 
+      updateFade();
       raf = requestAnimationFrame(draw);
     }
 
@@ -143,8 +144,16 @@ export default function FlowBackground() {
     // section, so this "flowy" treatment stays a homepage-opening
     // device rather than persisting behind the whole page forever.
     // Plain opacity on the canvas element, computed from the section's
-    // own bounding rect -- separate from the per-dot draw loop above,
-    // no need for this to run every animation frame.
+    // own bounding rect. 2026-08-23: moved from the 'scroll' handler
+    // into the draw() rAF loop below -- a pure scroll-event-driven
+    // version went stale during real momentum/inertial scrolling
+    // (mobile Safari in particular batches or throttles 'scroll'
+    // events during a fling, so the last-computed opacity can lag well
+    // behind the actual scroll position, reading as "doesn't fade" even
+    // though the math was right). Piggybacking on the loop that's
+    // already running every frame for the dots removes that dependency
+    // entirely -- opacity is now recomputed every frame regardless of
+    // how often 'scroll' actually fires.
     const FADE_DISTANCE = 400; // px past the showreel's bottom edge to complete the fade
     function updateFade() {
       const showreel = document.getElementById("showreel-section");
@@ -160,7 +169,6 @@ export default function FlowBackground() {
 
     function handleScroll() {
       scrollY.current = window.scrollY;
-      updateFade();
     }
 
     function handleVisibility() {
