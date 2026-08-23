@@ -4,7 +4,10 @@ import HomepageHighlights from "@/components/homepage/HomepageHighlights";
 import ShowreelSection from "@/components/homepage/ShowreelSection";
 import About from "@/components/homepage/About";
 import TalentsSection from "@/components/homepage/TalentsSection";
-import MixerTeaser from "@/components/homepage/MixerTeaser";
+// MixerTeaser hidden 2026-08-24 on request -- component untouched,
+// just not rendered. Re-add the import + <MixerTeaser /> below to
+// bring it back.
+// import MixerTeaser from "@/components/homepage/MixerTeaser";
 import Footer from "@/components/Footer";
 import { client } from "@/sanity/lib/client";
 import { homepageHighlightsQuery } from "@/sanity/lib/queries";
@@ -28,7 +31,6 @@ export default async function Home() {
       <About />
       <TalentsSection />
       <Footer />
-      <MixerTeaser />
     </>
   );
 }
