@@ -5,6 +5,11 @@ import Image from "next/image";
 import { urlFor } from "@/sanity/lib/image";
 import type { SanityImageSource } from "@sanity/image-url";
 
+// Restored 2026-08-23 -- was deleted when /projects moved to
+// FocusGallery.tsx, now reverted back to a plain grid (see that page's
+// comment). Unchanged from before the deletion except the no-image
+// placeholder, which picked up the transparent/black fix from the
+// flowy-hero tuning pass in the meantime.
 export default function ProjectCard({
   slug,
   name,
@@ -43,7 +48,7 @@ export default function ProjectCard({
         className={
           coverImage
             ? "absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"
-            : "absolute inset-0 bg-white/5 group-hover:bg-white/10 transition-colors"
+            : "absolute inset-0 bg-transparent group-hover:bg-white/5 transition-colors"
         }
       />
       {/* Hover-only tint on top of the always-on gradient above, so the

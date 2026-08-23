@@ -12,7 +12,7 @@ export default function ShowreelSection() {
   return (
     <section className="w-full bg-black px-6 md:px-10 py-24">
       <div className="mx-auto max-w-5xl">
-        <div className="relative w-full aspect-video bg-white/5">
+        <div className="relative w-full aspect-video overflow-hidden rounded-2xl bg-white/5 md:rounded-none">
           <iframe
             src={embed}
             className="absolute inset-0 h-full w-full"

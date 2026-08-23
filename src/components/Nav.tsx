@@ -60,7 +60,7 @@ export default function Nav() {
       </button>
 
       {open && (
-        <nav className="md:hidden absolute top-full left-0 w-full bg-black flex flex-col gap-6 px-6 py-8">
+        <nav className="md:hidden absolute top-full left-0 w-full bg-black flex flex-col gap-6 px-6 py-8 rounded-b-2xl">
           {LINKS.map((link) => (
             <Link
               key={link.href}

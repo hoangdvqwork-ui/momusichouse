@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Footer from "@/components/Footer";
+import PageHeading from "@/components/PageHeading";
 
 // Bios not written yet, real prerequisite per website-structure.md
 // ("Each profile should express taste, musical language, strengths, and
@@ -21,9 +22,9 @@ export default async function TalentDetailPage({
   return (
     <>
       <div className="px-6 md:px-10 pt-32 pb-32 min-h-[60vh]">
-        <h1 className="font-[family-name:var(--font-display-h1)] text-5xl md:text-7xl text-white mb-8">
+        <PageHeading className="font-[family-name:var(--font-display-h1)] text-5xl md:text-7xl text-white mb-8">
           {talent.name}
-        </h1>
+        </PageHeading>
         <p className="text-white/50 max-w-lg">
           Bio, taste, and musical language not written yet, this page is a
           structural placeholder.
