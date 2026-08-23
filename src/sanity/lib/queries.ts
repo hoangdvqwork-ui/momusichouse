@@ -18,7 +18,9 @@ export const allProjectsQuery = defineQuery(`
 // Homepage highlight strip, 2026-08-23 — editor-curated via the
 // `homepageHighlight` boolean (project.ts), capped at 5 in the query
 // itself so a 6th flagged project just doesn't show rather than
-// breaking the section's layout.
+// breaking the section's layout. Renders via FocusGallery (scoped mode,
+// same component as /projects), so needs the hero-media fields + credit
+// that a plain grid wouldn't.
 export const homepageHighlightsQuery = defineQuery(`
   *[_type == "project" && homepageHighlight == true] | order(name asc) [0...5] {
     _id,
@@ -26,7 +28,11 @@ export const homepageHighlightsQuery = defineQuery(`
     "slug": slug.current,
     year,
     category,
-    coverImage
+    coverImage,
+    heroMediaType,
+    heroVideoUrl,
+    "heroMediaFileUrl": heroMediaFile.asset->url,
+    credit
   }
 `);
 

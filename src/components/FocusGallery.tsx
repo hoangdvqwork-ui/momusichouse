@@ -44,8 +44,27 @@ export type GalleryProject = {
  *
  * Mobile: no room for fixed side columns, so title/credit render
  * inline under each item's media instead of in fixed rails.
+ *
+ * `scoped` (2026-08-23, homepage "Selected Work" reuse): the /projects
+ * page rails are `position: fixed` -- fine there since FocusGallery
+ * *is* the page, nothing above or below it to leak over. Embedded as a
+ * homepage section instead, fixed rails would keep floating over
+ * About/Talents/etc. once scrolled past this section, since `fixed` is
+ * viewport-relative, not section-relative. `scoped` swaps each rail to
+ * `absolute inset-y-0` (stretches to match this component's own root
+ * height, i.e. the full height of the item stack below) with a
+ * `sticky top-0 h-screen` element nested inside -- same track+sticky-
+ * child shape as the homepage slideshow experiment used, so each rail
+ * sticks while scrolling through *this section's* range and releases
+ * cleanly at its top/bottom instead of floating indefinitely.
  */
-export default function FocusGallery({ projects }: { projects: GalleryProject[] }) {
+export default function FocusGallery({
+  projects,
+  scoped = false,
+}: {
+  projects: GalleryProject[];
+  scoped?: boolean;
+}) {
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(0);
 
@@ -99,33 +118,57 @@ export default function FocusGallery({ projects }: { projects: GalleryProject[] 
 
   const focused = projects[focusedIndex];
 
+  const leftRailContent = focused && (
+    <Link
+      href={`/projects/${focused.slug}`}
+      className="pointer-events-auto text-2xl leading-tight text-white transition-colors hover:text-accent lg:text-3xl font-[family-name:var(--font-display-h1)]"
+    >
+      {focused.name}
+    </Link>
+  );
+
+  const rightRailContent = focused && (
+    <>
+      {focused.credit && (
+        <p className="whitespace-pre-line text-sm text-white/70">{focused.credit}</p>
+      )}
+      <p className="text-xs uppercase tracking-wide text-white/40">
+        {[focused.year, focused.category].filter(Boolean).join(" · ")}
+      </p>
+    </>
+  );
+
   return (
     <div className="relative w-full">
-      {/* Fixed left rail: focused project's title, click-through to its detail page. */}
-      <div className="pointer-events-none fixed inset-y-0 left-0 z-30 hidden w-[28vw] items-center px-6 md:flex md:px-10">
-        {focused && (
-          <Link
-            href={`/projects/${focused.slug}`}
-            className="pointer-events-auto text-2xl leading-tight text-white transition-colors hover:text-accent lg:text-3xl font-[family-name:var(--font-display-h1)]"
-          >
-            {focused.name}
-          </Link>
-        )}
-      </div>
+      {scoped ? (
+        <>
+          {/* Section-bounded rails: absolute box matches this component's
+              own height (the item stack below), sticky content inside
+              sticks only while scrolling through that range. */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-30 hidden w-[28vw] md:block">
+            <div className="sticky top-0 flex h-screen items-center px-6 md:px-10">
+              {leftRailContent}
+            </div>
+          </div>
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-30 hidden w-[28vw] md:block">
+            <div className="sticky top-0 flex h-screen flex-col items-end justify-center gap-3 px-6 text-right md:px-10">
+              {rightRailContent}
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Fixed left rail: focused project's title, click-through to its detail page. */}
+          <div className="pointer-events-none fixed inset-y-0 left-0 z-30 hidden w-[28vw] items-center px-6 md:flex md:px-10">
+            {leftRailContent}
+          </div>
 
-      {/* Fixed right rail: credit + year/category, no link -- only the title is clickable per the request. */}
-      <div className="pointer-events-none fixed inset-y-0 right-0 z-30 hidden w-[28vw] flex-col items-end justify-center gap-3 px-6 text-right md:flex md:px-10">
-        {focused && (
-          <>
-            {focused.credit && (
-              <p className="whitespace-pre-line text-sm text-white/70">{focused.credit}</p>
-            )}
-            <p className="text-xs uppercase tracking-wide text-white/40">
-              {[focused.year, focused.category].filter(Boolean).join(" · ")}
-            </p>
-          </>
-        )}
-      </div>
+          {/* Fixed right rail: credit + year/category, no link -- only the title is clickable per the request. */}
+          <div className="pointer-events-none fixed inset-y-0 right-0 z-30 hidden w-[28vw] flex-col items-end justify-center gap-3 px-6 text-right md:flex md:px-10">
+            {rightRailContent}
+          </div>
+        </>
+      )}
 
       {/* Center stack. */}
       <div className="flex flex-col items-center gap-24 py-[45vh]">
