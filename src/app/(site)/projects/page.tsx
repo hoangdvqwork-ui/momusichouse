@@ -1,7 +1,8 @@
+import Link from "next/link";
 import Footer from "@/components/Footer";
 import FocusGallery from "@/components/FocusGallery";
 import { client } from "@/sanity/lib/client";
-import { allProjectsQuery } from "@/sanity/lib/queries";
+import { featuredProjectsQuery } from "@/sanity/lib/queries";
 import type { GalleryProject } from "@/components/FocusGallery";
 
 export const metadata = {
@@ -10,35 +11,31 @@ export const metadata = {
     "Commercial scoring, sonic branding, talent collaboration, and live event music direction from Mõ Music House.",
 };
 
-// Fixed display order, not the query's alphabetical sort. Carried over
-// from the old grid layout -- still used here to order the flat gallery
-// stack, just without the visible category headers the grid used to
-// have (Focus Gallery's reference has no section dividers, one
-// continuous stack). Commercial & TVC Scoring pushed to the bottom on
-// request 2026-08-21.
-const CATEGORY_ORDER = [
-  "Brand Sound & Sonic Identity",
-  "Talent Booking & Artist Collaboration",
-  "Live Event & Music Direction",
-  "Commercial & TVC Scoring",
-];
-
-// Published only, deliberate — see src/sanity/lib/queries.ts.
+// Default view: FocusGallery (scroll-focus stack), editor-curated via
+// the `featured` boolean (project.ts), capped at 20
+// (featuredProjectsQuery). 2026-08-23: "the featured projects is shown
+// exactly how the focus gallery is now" -- the earlier plain-3-column
+// revert only applies to the full, uncurated library at /projects/all,
+// linked below.
 export default async function ProjectsPage() {
-  const projects: GalleryProject[] = await client.fetch(allProjectsQuery, {}, { cache: "no-store" });
-
-  const ordered = CATEGORY_ORDER.flatMap((category) =>
-    projects.filter((p) => p.category === category)
-  );
+  const projects: GalleryProject[] = await client.fetch(featuredProjectsQuery, {}, { cache: "no-store" });
 
   return (
     <>
       <div className="pt-32 pb-24">
-        {ordered.length === 0 ? (
-          <p className="text-center text-white/50">Nothing published yet.</p>
+        {projects.length === 0 ? (
+          <p className="text-center text-white/50">Nothing flagged as featured yet.</p>
         ) : (
-          <FocusGallery projects={ordered} />
+          <FocusGallery projects={projects} />
         )}
+        <div className="flex justify-center pt-16">
+          <Link
+            href="/projects/all"
+            className="border border-white/20 px-6 py-3 text-sm text-white uppercase tracking-wide hover:border-accent hover:text-accent transition-colors"
+          >
+            Full project library
+          </Link>
+        </div>
       </div>
       <Footer />
     </>

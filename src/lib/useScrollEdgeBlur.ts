@@ -37,6 +37,20 @@ import { useEffect, useRef } from "react";
  * the top. Now also applied to every homepage heading-style text (About's
  * statement, talent names), not just the hero -- exactly the "call the
  * hook again on a new ref" extension the original build predicted.
+ *
+ * 2026-08-23, second bug caught while extending this to every page's
+ * <h1> (not just homepage sections): TRIGGER=380 assumes the element
+ * sits comfortably *below* 380px at true rest, true for a vertically-
+ * centered full-screen hero but false for a normal page heading sitting
+ * right under the nav (~128px down, e.g. /projects/all's h1) -- those
+ * loaded already partway blurred, with zero scrolling. Fixed by
+ * capturing each element's resting (pre-scroll) progress value once on
+ * mount and re-normalizing against it, so progress is always exactly 0
+ * at true page-load rest regardless of where an element happens to sit
+ * on its page, and still reaches exactly 1 at the same "fully scrolled
+ * past the top" point as before. A no-op correction for elements that
+ * were already resting below TRIGGER (the hero), a real fix for ones
+ * that weren't.
  */
 const TRIGGER = 380; // px from viewport top: ramp starts once the element's top crosses below this
 const MAX_BLUR = 18; // px
@@ -50,15 +64,26 @@ export function useScrollEdgeBlur<T extends HTMLElement>() {
     const el = ref.current;
     if (!el) return;
     let raf = 0;
+    let restProgress: number | null = null;
+
+    function rawProgress(rect: DOMRect) {
+      const span = TRIGGER + rect.height;
+      return Math.min(1, Math.max(0, (TRIGGER - rect.top) / span));
+    }
 
     function update() {
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      // 0 while rect.top is at/below TRIGGER (still comfortably in view),
-      // ramping to 1 by the time the element has fully scrolled off the
-      // top (rect.top === -rect.height).
-      const span = TRIGGER + rect.height;
-      const progress = Math.min(1, Math.max(0, (TRIGGER - rect.top) / span));
+
+      // Captured once, on the first measurement (true page-load rest,
+      // before any scroll has happened) -- whatever the raw formula
+      // reports at that instant is treated as this element's own zero
+      // point.
+      if (restProgress === null) restProgress = rawProgress(rect);
+
+      const raw = rawProgress(rect);
+      const progress =
+        restProgress >= 1 ? 0 : Math.min(1, Math.max(0, (raw - restProgress) / (1 - restProgress)));
 
       el.style.filter = progress > 0.01 ? `blur(${progress * MAX_BLUR}px)` : "none";
       el.style.opacity = String(1 - progress * 0.85);

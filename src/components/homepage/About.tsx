@@ -8,7 +8,7 @@ export default function About() {
   const parallaxRef = useParallax<HTMLParagraphElement>(16);
   const blurRef = useScrollEdgeBlur<HTMLParagraphElement>();
   return (
-    <section className="w-full bg-black/75 px-6 md:px-10 py-32 flex justify-center overflow-hidden">
+    <section className="w-full bg-black px-6 md:px-10 py-32 flex justify-center overflow-hidden">
       <p
         ref={mergeRefs(parallaxRef, blurRef)}
         className="max-w-3xl text-center text-xl md:text-3xl leading-snug text-white font-[family-name:var(--font-display-h2h3)]"

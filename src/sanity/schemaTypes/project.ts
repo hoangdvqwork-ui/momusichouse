@@ -42,6 +42,22 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "homepageHighlight",
+      title: "Homepage highlight",
+      type: "boolean",
+      initialValue: false,
+      description:
+        "Feature this project in the homepage highlight strip. Keep exactly 5 projects flagged at a time -- the query takes the first 5 flagged ones (by name), so a 6th flag just won't show rather than erroring.",
+    }),
+    defineField({
+      name: "featured",
+      title: "Featured (projects page)",
+      type: "boolean",
+      initialValue: false,
+      description:
+        "Show this project in the /projects page's default view (capped at 20). Everything else, flagged or not, is still reachable via that page's 'Full project library' link. Keep ~20 flagged at a time -- the query takes the first 20 (by name).",
+    }),
+    defineField({
       name: "coverImage",
       title: "Cover image",
       type: "image",

@@ -20,25 +20,27 @@ export type GalleryProject = {
 };
 
 /**
- * "Focus Gallery" /projects redesign, 2026-08-22 -- modeled on Framer's
- * Focus Gallery component (https://focus-gallery.framer.website/):
- * media stacked in normal scroll flow down the center, scaling/fading
- * by distance from the viewport's vertical center as you scroll (the
- * item nearest center reads as "focused"). Title (left) and credit
- * (right) are fixed, vertically centered, and swap to match whichever
- * project is currently focused -- they don't scroll with the stack.
+ * "Focus Gallery" /projects view, modeled on Framer's Focus Gallery
+ * component (https://focus-gallery.framer.website/): media stacked in
+ * normal scroll flow down the center, scaling/fading by distance from
+ * the viewport's vertical center as you scroll (the item nearest
+ * center reads as "focused"). Title (left) and credit (right) are
+ * fixed, vertically centered, and swap to match whichever project is
+ * currently focused -- they don't scroll with the stack.
+ *
+ * 2026-08-23: restored after a brief revert to a plain 3-column grid --
+ * "the featured projects is shown exactly how the focus gallery is
+ * now" (i.e. keep this for the default/featured view). The plain grid
+ * instead became /projects/all, the full, uncurated library.
  *
  * Media: the focused item shows its real hero media (video embed) if
- * set, falling back to coverImage -- exactly "hero media (default) or
- * coverImg if hero media is empty" from the request. Non-focused items
- * always show coverImage (a stack of live video embeds playing/loading
- * at once would be absurd) -- they only ever show one live embed, and
- * only for whichever item is actually front-and-center.
+ * set, falling back to coverImage. Non-focused items always show
+ * coverImage (a stack of live video embeds playing/loading at once
+ * would be absurd) -- they only ever show one live embed, and only for
+ * whichever item is actually front-and-center.
  *
  * Click-through: only the title text navigates to the real detail page
- * (`/projects/[slug]`, untouched) -- the media itself isn't a link,
- * matching "move to project's detail page by clicking on the project's
- * title" exactly.
+ * (`/projects/[slug]`) -- the media itself isn't a link.
  *
  * Mobile: no room for fixed side columns, so title/credit render
  * inline under each item's media instead of in fixed rails.

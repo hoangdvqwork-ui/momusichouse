@@ -7,7 +7,7 @@ const TALENTS = [
 
 export default function TalentsSection() {
   return (
-    <section className="w-full bg-black/75">
+    <section className="w-full bg-black">
       {/* Mobile: inset gutter instead of full-bleed (px-4/gap-4/py-4,
           request 2026-08-22). Desktop keeps the original edge-to-edge
           two-column layout, untouched. */}

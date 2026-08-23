@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import Footer from "@/components/Footer";
 import HeroMedia from "@/components/HeroMedia";
+import PageHeading from "@/components/PageHeading";
 import { client } from "@/sanity/lib/client";
 import { projectBySlugQuery } from "@/sanity/lib/queries";
 
@@ -49,9 +50,9 @@ export default async function ProjectDetailPage({
         <span className="text-white/50 text-xs uppercase tracking-wide">
           {project.category} · {project.year}
         </span>
-        <h1 className="font-[family-name:var(--font-display-h1)] text-4xl md:text-6xl text-white mt-4 mb-12 max-w-3xl">
+        <PageHeading className="font-[family-name:var(--font-display-h1)] text-4xl md:text-6xl text-white mt-4 mb-12 max-w-3xl">
           {project.name}
-        </h1>
+        </PageHeading>
 
         {project.caseStudy ? (
           <div className="prose prose-invert max-w-2xl text-white/80 [&_p]:mb-4">
