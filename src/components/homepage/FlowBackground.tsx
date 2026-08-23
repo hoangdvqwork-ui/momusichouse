@@ -140,7 +140,7 @@ export default function FlowBackground() {
       mouse.current = { x: -9999, y: -9999 };
     }
 
-    // Fades the canvas itself out once scrolled past the showreel
+    // Fades the canvas itself out while scrolling past the showreel
     // section, so this "flowy" treatment stays a homepage-opening
     // device rather than persisting behind the whole page forever.
     // Plain opacity on the canvas element, computed from the section's
@@ -154,14 +154,26 @@ export default function FlowBackground() {
     // already running every frame for the dots removes that dependency
     // entirely -- opacity is now recomputed every frame regardless of
     // how often 'scroll' actually fires.
-    const FADE_DISTANCE = 400; // px past the showreel's bottom edge to complete the fade
+    //
+    // 2026-08-23, second pass: the first version tied completion to a
+    // fixed 400px *past* the section's bottom edge -- correct on its
+    // own terms, but that reads as "still showing" against "fade out
+    // when scroll past the showreel section": while scrolling through
+    // About (right below showreel) the canvas was still visibly midway
+    // through that extra 400px tail, i.e. not actually gone by the time
+    // you're past the section. Reworked so the fade's whole span is the
+    // section's own height instead of an arbitrary constant: it starts
+    // the moment the section's top edge scrolls above the viewport
+    // (you've begun scrolling past it) and reaches exactly 0 the moment
+    // its bottom edge does too (you're fully past it) -- no lingering
+    // tail afterward.
     function updateFade() {
       const showreel = document.getElementById("showreel-section");
       let fadeOpacity = 1;
       if (showreel) {
         const rect = showreel.getBoundingClientRect();
-        if (rect.bottom <= 0) {
-          fadeOpacity = Math.max(0, 1 + rect.bottom / FADE_DISTANCE);
+        if (rect.top <= 0 && rect.height > 0) {
+          fadeOpacity = Math.max(0, Math.min(1, rect.bottom / rect.height));
         }
       }
       canvas!.style.opacity = String(fadeOpacity);
