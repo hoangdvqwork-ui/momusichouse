@@ -75,12 +75,17 @@ export default function FocusGallery({
       const viewportCenter = window.innerHeight / 2;
       let closestIndex = 0;
       let closestDist = Infinity;
+      const distances: number[] = [];
 
       itemRefs.current.forEach((el, i) => {
-        if (!el) return;
+        if (!el) {
+          distances[i] = Infinity;
+          return;
+        }
         const rect = el.getBoundingClientRect();
         const itemCenter = rect.top + rect.height / 2;
         const dist = Math.abs(itemCenter - viewportCenter);
+        distances[i] = dist;
 
         // Falloff: full scale/opacity at the exact center, shrinking and
         // fading the further an item sits from it. Clamped to a max
@@ -97,7 +102,18 @@ export default function FocusGallery({
         }
       });
 
-      setFocusedIndex((prev) => (prev === closestIndex ? prev : closestIndex));
+      setFocusedIndex((prev) => {
+        if (prev === closestIndex) return prev;
+        // Hysteresis: hand focus to a new item only once it's
+        // meaningfully closer than the current one, not just barely --
+        // otherwise sub-pixel scroll jitter right at the midpoint
+        // between two items can flip focus back and forth, repeatedly
+        // re-triggering the video mount/crossfade in GalleryItem for no
+        // real scroll progress.
+        const FOCUS_HYSTERESIS = 24; // px
+        if (distances[prev] - closestDist < FOCUS_HYSTERESIS) return prev;
+        return closestIndex;
+      });
     }
 
     function onScroll() {
@@ -196,8 +212,43 @@ function GalleryItem({
   isFocused: boolean;
   setRef: (el: HTMLDivElement | null) => void;
 }) {
-  const embed = isFocused && project.heroVideoUrl ? toEmbedUrl(project.heroVideoUrl) : null;
-  const showVideo = isFocused && project.heroMediaType && (embed || project.heroMediaFileUrl);
+  const embed = project.heroVideoUrl ? toEmbedUrl(project.heroVideoUrl) : null;
+  const hasVideo = Boolean(project.heroMediaType && (embed || project.heroMediaFileUrl));
+
+  // Crossfade, not a hard swap, 2026-08-24 -- the previous version
+  // conditionally rendered *either* the cover image *or* the video
+  // (`showVideo ? <video/iframe> : <cover>`), so the instant an item
+  // became focused the cover unmounted and a cold iframe/video mounted
+  // in its place. An iframe's own document/player takes a beat to
+  // actually paint something, so that beat showed the section's plain
+  // black background -- a real flash reported as "flick" switching
+  // cover -> hero media.
+  //
+  // Fix: the cover image is now always mounted as a stable base layer
+  // underneath (never removed while focus changes). The video layer
+  // only mounts while focused, starts at opacity 0, and fades in via
+  // CSS transition once it reports itself actually ready (`onLoad` for
+  // an iframe, `onLoadedData` for a plain <video>) -- so the cover
+  // stays fully visible the whole time the video is still loading,
+  // and the switch reads as a crossfade instead of a cut-to-black.
+  // Unmount is delayed by the same duration on blur so it fades back
+  // out cleanly too, instead of popping away instantly.
+  const [mounted, setMounted] = useState(false);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+
+  useEffect(() => {
+    if (isFocused && hasVideo) {
+      setMounted(true);
+      return;
+    }
+    setVideoLoaded(false);
+    if (!mounted) return;
+    const timer = setTimeout(() => setMounted(false), 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFocused, hasVideo]);
+
+  const videoVisible = isFocused && videoLoaded;
 
   return (
     <div
@@ -205,27 +256,33 @@ function GalleryItem({
       className="w-[85vw] max-w-2xl transition-[transform,opacity] duration-150 ease-out will-change-transform"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-black">
-        {showVideo ? (
-          embed ? (
-            <iframe
-              src={embed}
-              className="absolute inset-0 h-full w-full"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <video src={project.heroMediaFileUrl} controls className="absolute inset-0 h-full w-full object-cover" />
-          )
-        ) : project.coverImage ? (
+        {project.coverImage && (
           <Image
             src={urlFor(project.coverImage).width(1000).height(750).fit("crop").url()}
             alt={project.name}
             fill
             unoptimized
             sizes="85vw"
-            className="object-cover grayscale"
+            className="absolute inset-0 object-cover grayscale"
           />
-        ) : null}
+        )}
+        {mounted &&
+          (embed ? (
+            <iframe
+              src={embed}
+              onLoad={() => setVideoLoaded(true)}
+              className={`absolute inset-0 h-full w-full transition-opacity duration-300 ${videoVisible ? "opacity-100" : "opacity-0"}`}
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              src={project.heroMediaFileUrl}
+              controls
+              onLoadedData={() => setVideoLoaded(true)}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${videoVisible ? "opacity-100" : "opacity-0"}`}
+            />
+          ))}
       </div>
 
       {/* Mobile-only: fixed side rails don't fit narrow screens, so title/credit go inline here instead. */}
