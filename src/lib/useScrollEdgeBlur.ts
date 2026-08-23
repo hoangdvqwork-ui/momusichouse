@@ -1,0 +1,80 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
+/**
+ * EXPERIMENT (branch: experiment/flowy-hero, 2026-08-22) — blurs and
+ * accent-glows an element as it scrolls up through the top of the
+ * viewport, then fades it out. Reusable per-element (attach the
+ * returned ref to whatever wants the effect), same shape as
+ * useParallax(strength): a hook that returns a ref, call it again on a
+ * new element to extend coverage, no rework of the mechanism itself.
+ *
+ * Replaces ScrollEdgeGlow's original full-width backdrop-blur strips
+ * for the *blur* specifically — those blurred everything sitting in
+ * that screen region indiscriminately (photos, buttons, text alike),
+ * since backdrop-filter blurs by screen region, not element type. This
+ * scopes the blur to one element (the hero heading, first use) driven
+ * by that element's own scroll position. ScrollEdgeGlow's ambient
+ * gradient/glow (no blur) still runs sitewide alongside this.
+ *
+ * Tuned strong/obvious on explicit request, not subtle: blur ramps to
+ * a real MAX_BLUR px and the accent-color text-shadow glow to a real,
+ * visible spread by the time the element has scrolled fully past the
+ * top edge -- not a faint effect someone could miss.
+ *
+ * TRIGGER is anchored to the element's own top edge, not an absolute
+ * viewport-pixel value, and the ramp runs over the element's own height
+ * (bug caught 2026-08-22 during testing: an absolute-pixel START/END
+ * pair meant a typical vertically-centered hero already sat past the
+ * trigger on a normal viewport height, giving a small nonzero blur at
+ * true rest instead of cleanly zero -- viewport-height-dependent,
+ * fixed by making it relative to the element instead).
+ */
+const TRIGGER = 160; // px from viewport top: ramp starts once the element's top crosses below this
+const MAX_BLUR = 18; // px
+const MAX_GLOW = 46; // px text-shadow spread at full intensity
+const ACCENT = "247, 209, 1";
+
+export function useScrollEdgeBlur<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+
+    function update() {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      // 0 while rect.top is at/below TRIGGER (still comfortably in view),
+      // ramping to 1 by the time the element has fully scrolled off the
+      // top (rect.top === -rect.height).
+      const span = TRIGGER + rect.height;
+      const progress = Math.min(1, Math.max(0, (TRIGGER - rect.top) / span));
+
+      el.style.filter = progress > 0.01 ? `blur(${progress * MAX_BLUR}px)` : "none";
+      el.style.opacity = String(1 - progress * 0.85);
+      el.style.textShadow =
+        progress > 0.02
+          ? `0 0 ${8 + progress * MAX_GLOW}px rgba(${ACCENT}, ${0.35 + progress * 0.65})`
+          : "none";
+    }
+
+    function onScroll() {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  return ref;
+}

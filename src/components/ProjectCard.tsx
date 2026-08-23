@@ -21,7 +21,7 @@ export default function ProjectCard({
   return (
     <Link
       href={`/projects/${slug}`}
-      className="group relative block aspect-[4/3] overflow-hidden bg-black"
+      className="group relative block aspect-[4/3] overflow-hidden rounded-2xl bg-black md:rounded-none"
     >
       {coverImage ? (
         // unoptimized: Sanity's CDN already resizes/crops via the urlFor()

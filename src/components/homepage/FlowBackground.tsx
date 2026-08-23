@@ -73,10 +73,13 @@ export default function FlowBackground() {
       // a single scroll tick doesn't spike the field, and it naturally
       // decays back to ~0 once scrolling actually stops (raw delta goes
       // to 0, lerp chases it down).
+      // 2026-08-22: lowered the divisor (was 36) so a normal scroll
+      // speed saturates scrollBoost sooner -- tuned "more obvious" per
+      // explicit request, was reading as too subtle at the old value.
       const rawVelocity = scrollY.current - lastScrollY;
       lastScrollY = scrollY.current;
       scrollVelocity.current += (rawVelocity - scrollVelocity.current) * 0.12;
-      const scrollBoost = Math.min(1, Math.abs(scrollVelocity.current) / 36);
+      const scrollBoost = Math.min(1, Math.abs(scrollVelocity.current) / 18);
 
       for (let x = SPACING / 2; x < width; x += SPACING) {
         for (let y = SPACING / 2; y < height; y += SPACING) {
@@ -86,7 +89,7 @@ export default function FlowBackground() {
 
           const ambient =
             beatSin(t, 4, (x + y) / AMBIENT_WAVELENGTH) * 0.5 + 0.5;
-          const ambientLift = ambient * (0.6 + scrollBoost * 0.9);
+          const ambientLift = ambient * (0.6 + scrollBoost * 2.2);
 
           let px = x;
           let py = y;
@@ -98,7 +101,7 @@ export default function FlowBackground() {
             const ripple =
               Math.sin(dist / RIPPLE_WAVELENGTH - t * RIPPLE_SPEED) * 0.5 + 0.5;
             const force =
-              proximity * MAX_PUSH * (0.5 + ripple * 0.5) * (1 + scrollBoost * 0.6);
+              proximity * MAX_PUSH * (0.5 + ripple * 0.5) * (1 + scrollBoost * 1.6);
             const angle = Math.atan2(dy, dx);
             px = x + Math.cos(angle) * force;
             py = y + Math.sin(angle) * force;
@@ -109,13 +112,14 @@ export default function FlowBackground() {
           // A gentle vertical drift proportional to scroll velocity, on
           // top of the ambient/cursor displacement above -- the "flow"
           // that reads as the field responding to your scroll, not just
-          // brightening.
-          py += scrollVelocity.current * -0.08;
+          // brightening. Drift and alpha boost both raised 2026-08-22,
+          // same "more obvious" tuning pass as scrollBoost's divisor above.
+          py += scrollVelocity.current * -0.16;
 
           const cr = Math.round(255 + (ACCENT.r - 255) * tint);
           const cg = Math.round(255 + (ACCENT.g - 255) * tint);
           const cb = Math.round(255 + (ACCENT.b - 255) * tint);
-          const alpha = 0.35 + ambientLift * 0.2 + tint * 0.35 + scrollBoost * 0.15;
+          const alpha = 0.35 + ambientLift * 0.2 + tint * 0.35 + scrollBoost * 0.4;
 
           context.beginPath();
           context.fillStyle = `rgba(${cr}, ${cg}, ${cb}, ${Math.min(1, alpha)})`;

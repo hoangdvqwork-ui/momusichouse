@@ -3,13 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * EXPERIMENT (branch: experiment/flowy-hero, 2026-08-21) — a progressive
- * blur + accent glow pinned to the very top and bottom of the viewport,
- * masking/softening content as it scrolls under those edges. Uses
- * mask-image to fade the backdrop-blur's opacity toward the middle of
- * each strip (a uniform-strength blur can't itself be "graduated", so
- * the graduation is faked by fading the blurred layer out) -- the
- * standard progressive-blur trick.
+ * EXPERIMENT (branch: experiment/flowy-hero, 2026-08-21) — an accent
+ * glow pinned to the very top and bottom of the viewport, framing
+ * content as it scrolls under those edges.
+ *
+ * 2026-08-22: dropped the backdrop-filter blur that used to live here.
+ * It blurred everything in that screen region indiscriminately (photos,
+ * buttons, text alike), since backdrop-filter operates on a screen
+ * region, not an element type -- that's now handled per-element by
+ * useScrollEdgeBlur (see the hero heading in DotGridHero.tsx), which can
+ * be scoped to just the elements that should blur. This component keeps
+ * only the ambient gradient/glow, no blur.
  *
  * "When scroll": a low, near-invisible base presence at rest, boosted to
  * full intensity while actively scrolling and settling back down ~500ms
@@ -45,8 +49,6 @@ export default function ScrollEdgeGlow() {
     minHeight: "90px",
     zIndex: 40,
     pointerEvents: "none" as const,
-    backdropFilter: "blur(18px)",
-    WebkitBackdropFilter: "blur(18px)",
     transition: "opacity 0.6s ease",
     opacity: active ? 1 : 0.35,
   };
