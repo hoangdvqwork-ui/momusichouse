@@ -68,6 +68,24 @@ export default function FocusGallery({
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [focusedIndex, setFocusedIndex] = useState(0);
 
+  // Reset focus when the *set* of projects changes (e.g. a search/
+  // category filter narrows the list, 2026-08-24), not just its length
+  // -- the old focusedIndex could otherwise point at the wrong item (or
+  // one that's no longer in the filtered list at all) once the
+  // underlying array shifts. Keyed on the slugs joined into one string,
+  // not the array reference (which changes every render regardless of
+  // content), so this only actually fires when the filtered set really
+  // changes. itemRefs itself doesn't need an explicit reset here --
+  // each GalleryItem's ref callback is a fresh closure every render, so
+  // React re-invokes it (old element -> null, new element -> set) for
+  // every currently-rendered item on every render regardless, and a
+  // removed item's own unmount correctly nulls its old slot.
+  const projectsKey = projects.map((p) => p.slug).join("|");
+
+  useEffect(() => {
+    setFocusedIndex(0);
+  }, [projectsKey]);
+
   useEffect(() => {
     let raf = 0;
 
@@ -130,7 +148,7 @@ export default function FocusGallery({
       window.removeEventListener("resize", onScroll);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projects.length]);
+  }, [projectsKey]);
 
   const focused = projects[focusedIndex];
 

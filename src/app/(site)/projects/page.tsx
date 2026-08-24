@@ -1,6 +1,5 @@
-import Link from "next/link";
 import Footer from "@/components/Footer";
-import FocusGallery from "@/components/FocusGallery";
+import FeaturedProjectsClient from "@/components/FeaturedProjectsClient";
 import { client } from "@/sanity/lib/client";
 import { featuredProjectsQuery } from "@/sanity/lib/queries";
 import type { GalleryProject } from "@/components/FocusGallery";
@@ -15,8 +14,9 @@ export const metadata = {
 // the `featured` boolean (project.ts), capped at 20
 // (featuredProjectsQuery). 2026-08-23: "the featured projects is shown
 // exactly how the focus gallery is now" -- the earlier plain-3-column
-// revert only applies to the full, uncurated library at /projects/all,
-// linked below.
+// revert only applies to the full, uncurated library at /projects/all.
+// 2026-08-24: search+category filter and a top "Project Library"
+// button moved into FeaturedProjectsClient.tsx (client, needs state).
 export default async function ProjectsPage() {
   const projects: GalleryProject[] = await client.fetch(featuredProjectsQuery, {}, { cache: "no-store" });
 
@@ -26,16 +26,8 @@ export default async function ProjectsPage() {
         {projects.length === 0 ? (
           <p className="text-center text-white/50">Nothing flagged as featured yet.</p>
         ) : (
-          <FocusGallery projects={projects} />
+          <FeaturedProjectsClient projects={projects} />
         )}
-        <div className="flex justify-center pt-16">
-          <Link
-            href="/projects/all"
-            className="border border-white/20 px-6 py-3 text-sm text-white uppercase tracking-wide hover:border-accent hover:text-accent transition-colors"
-          >
-            Full project library
-          </Link>
-        </div>
       </div>
       <Footer />
     </>
