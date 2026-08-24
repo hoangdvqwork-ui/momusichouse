@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { btDanta, arizonaFlare, arizonaSans } from "./fonts";
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <main className="flex-1 flex flex-col">{children}</main>
+        <Analytics />
       </body>
     </html>
   );
