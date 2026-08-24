@@ -5,6 +5,8 @@ import PageHeading from "@/components/PageHeading";
 export const metadata = {
   title: "Contact | Mõ Music House",
   description: "hello@momusichouse.com · +84 338 114 494",
+  alternates: { canonical: "/contact" },
+  openGraph: { title: "Contact | Mõ Music House", description: "hello@momusichouse.com · +84 338 114 494" },
 };
 
 export default function ContactPage() {

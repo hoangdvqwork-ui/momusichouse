@@ -5,10 +5,11 @@
  * per the brief: "Theme: Dark - Black and White"). Accent #F7D101 used
  * sparingly (CTAs, hover/active states), never as a base color.
  *
- * Font licensing note: ABC Arizona Sans / Sans Condensed / Flare files
- * in /public/fonts are TRIAL versions, dev/preview only. Do not ship to
- * production without confirming a real license. See
- * automation-os/.claude/skills/momusic-content/modes/website-copy.md.
+ * Font licensing: ABC Arizona Sans / Sans Condensed / Flare -- real
+ * license confirmed 2026-08-24 (was flagged TRIAL/dev-only before
+ * this, see git history). Files still carry the "Trial" name in their
+ * filenames from the original download, that's just naming, not an
+ * active restriction.
  */
 
 :root {

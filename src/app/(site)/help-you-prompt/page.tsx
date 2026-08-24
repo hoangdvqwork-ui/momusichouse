@@ -5,6 +5,8 @@ import PageHeading from "@/components/PageHeading";
 export const metadata = {
   title: "Help You Prompt | Mõ Music House",
   description: "Build your brief, one card at a time.",
+  alternates: { canonical: "/help-you-prompt" },
+  openGraph: { title: "Help You Prompt | Mõ Music House", description: "Build your brief, one card at a time." },
 };
 
 export default function HelpYouPromptPage() {

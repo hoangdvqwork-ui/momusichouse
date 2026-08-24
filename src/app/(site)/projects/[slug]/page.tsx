@@ -5,6 +5,7 @@ import HeroMedia from "@/components/HeroMedia";
 import PageHeading from "@/components/PageHeading";
 import { client } from "@/sanity/lib/client";
 import { projectBySlugQuery } from "@/sanity/lib/queries";
+import { urlFor } from "@/sanity/lib/image";
 
 export async function generateMetadata({
   params,
@@ -12,11 +13,27 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await client.fetch(projectBySlugQuery, { slug }, { cache: "no-store" });
+  const project = await client.fetch(projectBySlugQuery, { slug }, { next: { revalidate: 300 } });
   if (!project) return {};
+
+  // SEO audit ("Signal Check"), 2026-08-24 -- seoDescription has no
+  // fallback when a project doesn't have one drafted yet (unlike
+  // seoTitle, which already falls back to `${name} | Mõ Music House`
+  // below), so the <meta description> tag was silently omitted
+  // entirely on any project missing it. Falls back to a plain,
+  // non-fabricated line built from fields every project actually has.
+  const description =
+    project.seoDescription || `${project.name} — ${project.category}, ${project.year || "Mõ Music House"}.`;
+  const title = project.seoTitle || `${project.name} | Mõ Music House`;
+  const ogImage = project.coverImage
+    ? [{ url: urlFor(project.coverImage).width(1200).height(630).fit("crop").url() }]
+    : undefined;
+
   return {
-    title: project.seoTitle || `${project.name} | Mõ Music House`,
-    description: project.seoDescription,
+    title,
+    description,
+    alternates: { canonical: `/projects/${slug}` },
+    openGraph: { title, description, images: ogImage },
   };
 }
 
@@ -28,8 +45,25 @@ export default async function ProjectDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const project = await client.fetch(projectBySlugQuery, { slug }, { cache: "no-store" });
+  const project = await client.fetch(projectBySlugQuery, { slug }, { next: { revalidate: 300 } });
   if (!project) notFound();
+
+  // CreativeWork structured data, 2026-08-24 -- only fields the
+  // document actually has populated make it in (no fabricated
+  // uploadDate/duration for the video sub-property, etc.).
+  const creativeWorkJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.name,
+    ...(project.seoDescription ? { description: project.seoDescription } : {}),
+    ...(project.year ? { datePublished: project.year } : {}),
+    ...(project.category ? { genre: project.category } : {}),
+    ...(project.coverImage
+      ? { image: urlFor(project.coverImage).width(1200).height(900).fit("crop").url() }
+      : {}),
+    ...(project.credit ? { creditText: project.credit } : {}),
+    creator: { "@type": "Organization", name: "Mõ Music House" },
+  };
 
   return (
     <>
@@ -45,6 +79,12 @@ export default async function ProjectDetailPage({
           fileUrl={project.heroMediaFileUrl}
         />
       </div>
+
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkJsonLd) }}
+      />
 
       <div className="px-6 md:px-10 pb-32">
         <span className="text-white/50 text-xs uppercase tracking-wide">

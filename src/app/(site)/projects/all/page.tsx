@@ -9,6 +9,12 @@ export const metadata = {
   title: "Full Project Library | Mõ Music House",
   description:
     "The complete list of commercial scoring, sonic branding, talent collaboration, and live event music direction work from Mõ Music House.",
+  alternates: { canonical: "/projects/all" },
+  openGraph: {
+    title: "Full Project Library | Mõ Music House",
+    description:
+      "The complete list of commercial scoring, sonic branding, talent collaboration, and live event music direction work from Mõ Music House.",
+  },
 };
 
 type ProjectListItem = {
@@ -27,7 +33,7 @@ type ProjectListItem = {
 // search+category filter moved into AllProjectsClient.tsx (client,
 // needs state).
 export default async function AllProjectsPage() {
-  const projects: ProjectListItem[] = await client.fetch(allProjectsQuery, {}, { cache: "no-store" });
+  const projects: ProjectListItem[] = await client.fetch(allProjectsQuery, {}, { next: { revalidate: 300 } });
 
   return (
     <>

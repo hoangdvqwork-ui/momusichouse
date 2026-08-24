@@ -8,6 +8,12 @@ export const metadata = {
   title: "Projects | Mõ Music House",
   description:
     "Commercial scoring, sonic branding, talent collaboration, and live event music direction from Mõ Music House.",
+  alternates: { canonical: "/projects" },
+  openGraph: {
+    title: "Projects | Mõ Music House",
+    description:
+      "Commercial scoring, sonic branding, talent collaboration, and live event music direction from Mõ Music House.",
+  },
 };
 
 // Default view: FocusGallery (scroll-focus stack), editor-curated via
@@ -18,7 +24,7 @@ export const metadata = {
 // 2026-08-24: search+category filter and a top "Project Library"
 // button moved into FeaturedProjectsClient.tsx (client, needs state).
 export default async function ProjectsPage() {
-  const projects: GalleryProject[] = await client.fetch(featuredProjectsQuery, {}, { cache: "no-store" });
+  const projects: GalleryProject[] = await client.fetch(featuredProjectsQuery, {}, { next: { revalidate: 300 } });
 
   return (
     <>
