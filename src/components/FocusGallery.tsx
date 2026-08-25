@@ -16,7 +16,11 @@ export type GalleryProject = {
   heroMediaType?: string;
   heroVideoUrl?: string;
   heroMediaFileUrl?: string;
-  credit?: string;
+  // 2026-08-24: right rail (and mobile fallback) show seoDescription
+  // now, not credit -- credit is still a real field, still shown on the
+  // project detail page, just swapped out of FocusGallery specifically
+  // on request.
+  seoDescription?: string;
   // Optional -- only meaningful where the caller distinguishes curated
   // from everything else (FeaturedProjectsClient.tsx). Not selected by
   // homepageHighlightsQuery, so absent (not false) on the homepage.
@@ -28,9 +32,9 @@ export type GalleryProject = {
  * component (https://focus-gallery.framer.website/): media stacked in
  * normal scroll flow down the center, scaling/fading by distance from
  * the viewport's vertical center as you scroll (the item nearest
- * center reads as "focused"). Title (left) and credit (right) are
- * fixed, vertically centered, and swap to match whichever project is
- * currently focused -- they don't scroll with the stack.
+ * center reads as "focused"). Title (left) and SEO description (right)
+ * are fixed, vertically centered, and swap to match whichever project
+ * is currently focused -- they don't scroll with the stack.
  *
  * 2026-08-23: restored after a brief revert to a plain 3-column grid --
  * "the featured projects is shown exactly how the focus gallery is
@@ -46,7 +50,7 @@ export type GalleryProject = {
  * Click-through: only the title text navigates to the real detail page
  * (`/projects/[slug]`) -- the media itself isn't a link.
  *
- * Mobile: no room for fixed side columns, so title/credit render
+ * Mobile: no room for fixed side columns, so title/description render
  * inline under each item's media instead of in fixed rails.
  *
  * `scoped` (2026-08-23, homepage "Selected Work" reuse): the /projects
@@ -167,8 +171,8 @@ export default function FocusGallery({
 
   const rightRailContent = focused && (
     <>
-      {focused.credit && (
-        <p className="whitespace-pre-line text-sm text-white/70">{focused.credit}</p>
+      {focused.seoDescription && (
+        <p className="whitespace-pre-line text-sm text-white/70">{focused.seoDescription}</p>
       )}
       <p className="text-xs uppercase tracking-wide text-white/40">
         {[focused.year, focused.category].filter(Boolean).join(" · ")}
@@ -201,7 +205,7 @@ export default function FocusGallery({
             {leftRailContent}
           </div>
 
-          {/* Fixed right rail: credit + year/category, no link -- only the title is clickable per the request. */}
+          {/* Fixed right rail: SEO description + year/category, no link -- only the title is clickable per the request. */}
           <div className="pointer-events-none fixed inset-y-0 right-0 z-30 hidden w-[28vw] flex-col items-end justify-center gap-3 px-6 text-right md:flex md:px-10">
             {rightRailContent}
           </div>
@@ -307,7 +311,7 @@ function GalleryItem({
           ))}
       </div>
 
-      {/* Mobile-only: fixed side rails don't fit narrow screens, so title/credit go inline here instead. */}
+      {/* Mobile-only: fixed side rails don't fit narrow screens, so title/description go inline here instead. */}
       <div className="mt-4 text-center md:hidden">
         <Link
           href={`/projects/${project.slug}`}
@@ -315,8 +319,8 @@ function GalleryItem({
         >
           {project.name}
         </Link>
-        {project.credit && (
-          <p className="mt-1 whitespace-pre-line text-xs text-white/60">{project.credit}</p>
+        {project.seoDescription && (
+          <p className="mt-1 whitespace-pre-line text-xs text-white/60">{project.seoDescription}</p>
         )}
         <p className="mt-1 text-xs uppercase tracking-wide text-white/40">
           {[project.year, project.category].filter(Boolean).join(" · ")}

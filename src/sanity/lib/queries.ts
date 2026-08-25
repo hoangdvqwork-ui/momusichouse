@@ -19,8 +19,11 @@ export const allProjectsQuery = defineQuery(`
 // `homepageHighlight` boolean (project.ts), capped at 5 in the query
 // itself so a 6th flagged project just doesn't show rather than
 // breaking the section's layout. Renders via FocusGallery (scoped mode,
-// same component as /projects), so needs the hero-media fields + credit
-// that a plain grid wouldn't.
+// same component as /projects), so needs the hero-media fields that a
+// plain grid wouldn't. 2026-08-24: seoDescription instead of credit --
+// FocusGallery's rail shows the SEO description now, not credit (still
+// a real field, still shown on the project detail page, just swapped
+// out of FocusGallery specifically on request).
 export const homepageHighlightsQuery = defineQuery(`
   *[_type == "project" && homepageHighlight == true] | order(name asc) [0...5] {
     _id,
@@ -32,7 +35,7 @@ export const homepageHighlightsQuery = defineQuery(`
     heroMediaType,
     heroVideoUrl,
     "heroMediaFileUrl": heroMediaFile.asset->url,
-    credit
+    seoDescription
   }
 `);
 
@@ -71,6 +74,8 @@ export const featuredProjectsQuery = defineQuery(`
 // `featured` subset, but the category filter needs the full pool so
 // picking a category surfaces every project in it, not just the ones
 // that happen to also be flagged featured.
+// 2026-08-24: seoDescription instead of credit -- see
+// homepageHighlightsQuery's comment above, same swap, same reason.
 export const galleryProjectsQuery = defineQuery(`
   *[_type == "project"] | order(name asc) {
     _id,
@@ -82,7 +87,7 @@ export const galleryProjectsQuery = defineQuery(`
     heroMediaType,
     heroVideoUrl,
     "heroMediaFileUrl": heroMediaFile.asset->url,
-    credit,
+    seoDescription,
     featured
   }
 `);
