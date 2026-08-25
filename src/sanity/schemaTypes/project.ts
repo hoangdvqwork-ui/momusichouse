@@ -97,6 +97,14 @@ export default defineType({
       description: "Not drafted yet for most projects, see the Work section content plan.",
     }),
     defineField({
+      name: "gallery",
+      title: "Gallery",
+      type: "array",
+      of: [{ type: "image", options: { hotspot: true } }],
+      description:
+        "Additional photos for this project's own detail page, beyond the cover image and hero video/link above. Not yet rendered on the live site -- schema only for now, added so this can start getting populated.",
+    }),
+    defineField({
       name: "persona",
       title: "Persona",
       type: "string",

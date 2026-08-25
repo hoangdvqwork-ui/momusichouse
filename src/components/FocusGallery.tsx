@@ -17,6 +17,10 @@ export type GalleryProject = {
   heroVideoUrl?: string;
   heroMediaFileUrl?: string;
   credit?: string;
+  // Optional -- only meaningful where the caller distinguishes curated
+  // from everything else (FeaturedProjectsClient.tsx). Not selected by
+  // homepageHighlightsQuery, so absent (not false) on the homepage.
+  featured?: boolean;
 };
 
 /**

@@ -1,7 +1,7 @@
 import Footer from "@/components/Footer";
 import FeaturedProjectsClient from "@/components/FeaturedProjectsClient";
 import { client } from "@/sanity/lib/client";
-import { featuredProjectsQuery } from "@/sanity/lib/queries";
+import { galleryProjectsQuery } from "@/sanity/lib/queries";
 import type { GalleryProject } from "@/components/FocusGallery";
 
 export const metadata = {
@@ -17,20 +17,24 @@ export const metadata = {
 };
 
 // Default view: FocusGallery (scroll-focus stack), editor-curated via
-// the `featured` boolean (project.ts), capped at 20
-// (featuredProjectsQuery). 2026-08-23: "the featured projects is shown
-// exactly how the focus gallery is now" -- the earlier plain-3-column
-// revert only applies to the full, uncurated library at /projects/all.
-// 2026-08-24: search+category filter and a top "Project Library"
-// button moved into FeaturedProjectsClient.tsx (client, needs state).
+// the `featured` boolean (project.ts). 2026-08-23: "the featured
+// projects is shown exactly how the focus gallery is now" -- the
+// earlier plain-3-column revert only applies to the full, uncurated
+// library at /projects/all. 2026-08-24: search+category filter and a
+// top "Project Library" button moved into FeaturedProjectsClient.tsx
+// (client, needs state). 2026-08-24, second pass: fetches *every*
+// published project now (galleryProjectsQuery), not just the featured
+// 20 -- FeaturedProjectsClient shows only the featured subset by
+// default, but needs the full pool so picking a category surfaces
+// every project in it, not just the ones also flagged featured.
 export default async function ProjectsPage() {
-  const projects: GalleryProject[] = await client.fetch(featuredProjectsQuery, {}, { next: { revalidate: 300 } });
+  const projects: GalleryProject[] = await client.fetch(galleryProjectsQuery, {}, { next: { revalidate: 300 } });
 
   return (
     <>
       <div className="pt-32 pb-24">
         {projects.length === 0 ? (
-          <p className="text-center text-white/50">Nothing flagged as featured yet.</p>
+          <p className="text-center text-white/50">Nothing published yet.</p>
         ) : (
           <FeaturedProjectsClient projects={projects} />
         )}
