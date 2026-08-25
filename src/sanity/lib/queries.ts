@@ -104,6 +104,7 @@ export const projectBySlugQuery = defineQuery(`
     seoDescription,
     credit,
     mediaLink,
-    musicLink
+    musicLink,
+    gallery
   }
 `);

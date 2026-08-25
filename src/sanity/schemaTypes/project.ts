@@ -102,7 +102,7 @@ export default defineType({
       type: "array",
       of: [{ type: "image", options: { hotspot: true } }],
       description:
-        "Additional photos for this project's own detail page, beyond the cover image and hero video/link above. Not yet rendered on the live site -- schema only for now, added so this can start getting populated.",
+        "Additional photos shown in a grid on this project's own detail page, beyond the cover image and hero video/link above.",
     }),
     defineField({
       name: "persona",

@@ -3,6 +3,7 @@ import { PortableText } from "@portabletext/react";
 import Footer from "@/components/Footer";
 import HeroMedia from "@/components/HeroMedia";
 import PageHeading from "@/components/PageHeading";
+import ProjectGallery from "@/components/ProjectGallery";
 import { client } from "@/sanity/lib/client";
 import { projectBySlugQuery } from "@/sanity/lib/queries";
 import { urlFor } from "@/sanity/lib/image";
@@ -100,6 +101,10 @@ export default async function ProjectDetailPage({
           </div>
         ) : (
           <p className="text-white/50 max-w-lg">Case study copy not drafted yet.</p>
+        )}
+
+        {project.gallery && (
+          <ProjectGallery images={project.gallery} projectName={project.name} />
         )}
 
         {project.credit && (
